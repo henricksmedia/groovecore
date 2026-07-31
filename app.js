@@ -4222,6 +4222,11 @@ function setupEventListeners() {
 
   // Save/Load/Reset functions
 document.getElementById("save").addEventListener("click", () => {
+    const chain =
+      (window.GCChain && window.GCChain.state) ? window.GCChain.state :
+      (window.GCSchema && typeof window.GCSchema.snapshot === 'function'
+        ? ((window.GCSchema.snapshot() || {}).ext || {}).chain || null
+        : null);
     const saveData = {
       version: 2,
       patterns: patterns,
@@ -4238,7 +4243,9 @@ document.getElementById("save").addEventListener("click", () => {
       },
       // Modal and pattern control settings for each instrument
       modalKnobValues: modalKnobValues,
-      patternControls: patternControls
+      patternControls: patternControls,
+      // Pattern chain (LOOP/CHAIN + 8 slots) — also in schema autosave as ext.chain
+      chain: chain
     };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData));
   const downloadAnchorNode = document.createElement('a');
@@ -4248,7 +4255,9 @@ document.getElementById("save").addEventListener("click", () => {
   downloadAnchorNode.click();
   downloadAnchorNode.remove();
   
-  console.log(`💾 Save complete: Pattern ${currentPattern + 1}, ${Object.keys(patterns.a).length + Object.keys(patterns.b).length} total patterns, ${Object.keys(knobValues).length} knob settings, ${Object.keys(modalKnobValues).length} modal controls, ${Object.keys(patternControls.probability).length} instruments with pattern effects`);
+  const filledSlots = chain && Array.isArray(chain.slots)
+    ? chain.slots.filter(Boolean).length : 0;
+  console.log(`💾 Save complete: Pattern ${currentPattern + 1}, ${Object.keys(patterns.a).length + Object.keys(patterns.b).length} total patterns, chain ${chain ? chain.mode : 'n/a'} (${filledSlots} slots), ${Object.keys(knobValues).length} knob settings, ${Object.keys(modalKnobValues).length} modal controls, ${Object.keys(patternControls.probability).length} instruments with pattern effects`);
 });
 
 // Security enhancement: Sanitize string input to prevent potential issues
@@ -4396,6 +4405,14 @@ document.getElementById("load").addEventListener("click", () => {
               roll: Object.assign({}, saveData.patternControls.roll || {}),
               pitchBend: Object.assign({}, saveData.patternControls.pitchBend || {})
             };
+          }
+
+          // Restore pattern chain (legacy saves omit this — leave chain as-is)
+          const chainSnap = saveData.chain
+            || (saveData.ext && saveData.ext.chain)
+            || null;
+          if (chainSnap && window.GCChain && typeof window.GCChain.apply === 'function') {
+            window.GCChain.apply(chainSnap);
           }
           
           // Update UI to reflect loaded state

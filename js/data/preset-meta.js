@@ -12,7 +12,7 @@
 // =============================================================================
 
 export const PRESET_META = [
-  // ===== Styles (108) ========================================================
+  // ===== Styles (113) ========================================================
   { kind: 'style', key: 'treq',                 label: 'Misty Folktronica',       emoji: '🌲', bpm: 92,  genre: 'Treq' },
   { kind: 'style', key: 'treq_empire',          label: 'Cinematic Tribal',        emoji: '🥁', bpm: 100, genre: 'Treq' },
   { kind: 'style', key: 'treq_synthpop',        label: 'Warm Synthpop',           emoji: '🎹', bpm: 104, genre: 'Treq' },
@@ -47,6 +47,11 @@ export const PRESET_META = [
   { kind: 'style', key: 'treq_slag_forge',      label: 'Slag Forge',              emoji: '🔨', bpm: 138, genre: 'Industrial' },
   { kind: 'style', key: 'treq_aggro_pulse',     label: 'Aggro Pulse',             emoji: '☠️', bpm: 145, genre: 'Industrial' },
   { kind: 'style', key: 'treq_noise_floor',     label: 'Noise Floor',             emoji: '☢️', bpm: 132, genre: 'Industrial' },
+  { kind: 'style', key: 'treq_hoodoo_gallop',   label: 'Hoodoo Acid-Gallop',      emoji: '🐎', bpm: 138, genre: 'Treq' },
+  { kind: 'style', key: 'treq_boxcar_skip',     label: 'Boxcar Skip',             emoji: '🚂', bpm: 135, genre: 'Treq' },
+  { kind: 'style', key: 'treq_thunder_swell',   label: 'Thunder Swell',           emoji: '🌩️', bpm: 128, genre: 'Treq' },
+  { kind: 'style', key: 'treq_swamp_gas',       label: 'Swamp Gas Stutter',       emoji: '💨', bpm: 138, genre: 'Treq' },
+  { kind: 'style', key: 'treq_mojo_conga',      label: 'Mojo Conga Grip',         emoji: '🧿', bpm: 132, genre: 'Treq' },
   { kind: 'style', key: 'triphop_bristol',      label: 'Bristol Boom-Bap',        emoji: '🌧️', bpm: 78,  genre: 'Trip Hop' },
   { kind: 'style', key: 'triphop_ghost',        label: 'Lazy Ghost Groove',       emoji: '👻', bpm: 76,  genre: 'Trip Hop' },
   { kind: 'style', key: 'triphop_noir',         label: 'Syncopated Noir',         emoji: '🕶️', bpm: 72,  genre: 'Trip Hop' },
