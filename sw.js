@@ -6,7 +6,7 @@
  * workstreams (or are renamed later) never break install.
  */
 
-const CACHE = 'gc-v6';
+const CACHE = 'gc-v7';
 
 const PRECACHE = [
   // Shell

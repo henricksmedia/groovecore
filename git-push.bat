@@ -5,7 +5,7 @@ cd /d "%~dp0"
 set "NAME=GrooveCore"
 rem ============================================================
 rem  EDIT ME if this is not your repo URL:
-set "REMOTE_URL=https://github.com/jshenricks/GrooveCore.git"
+set "REMOTE_URL=https://github.com/henricksmedia/groovecore.git"
 rem ============================================================
 set "BRANCH=main"
 

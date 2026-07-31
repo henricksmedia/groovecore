@@ -1129,6 +1129,43 @@ function dispatchHit(inst, velocity, accent, when, stepIndex, stepDur) {
   }
 }
 
+/** Manual step-click / pad preview with flam + roll from modal pattern knobs. */
+function previewPatternHit(inst, velocity) {
+  const level = (knobValues[`level${inst.charAt(0).toUpperCase()}${inst.slice(1)}`] || 7) / 10;
+  let vel = Math.max(1, Math.min(127, Math.round(Number(velocity) || 100)));
+  const velocityVariation = patternControls.velocity[inst] ?? 5;
+  const velocityRange = (velocityVariation - 5) / 5;
+  vel = Math.max(1, Math.min(127, Math.round(vel * (1 + (Math.random() - 0.5) * velocityRange * 0.5))));
+
+  const flamAmount = patternControls.flam[inst] ?? 0;
+  const rollAmount = patternControls.roll[inst] ?? 0;
+  const now = (typeof Tone !== 'undefined' && Tone.now) ? Tone.now() : 0;
+
+  const fire = (v, at) => {
+    v = Math.max(1, Math.min(127, Math.round(v)));
+    const opts = { velocity: v };
+    if (at != null && typeof at === 'number') opts.time = at;
+    else opts.immediate = true;
+    triggerInstrument(inst, Math.min(1, level * (v / 100)), 0, opts);
+  };
+
+  if (flamAmount > 0) {
+    const flamDelay = (flamAmount / 10) * 0.02;
+    fire(vel * 0.7, now);
+    fire(vel, now + flamDelay);
+  } else {
+    fire(vel, null);
+  }
+
+  if (rollAmount > 3) {
+    const rollHits = Math.floor((rollAmount - 3) / 2) + 1;
+    const base = (flamAmount > 0) ? (now + (flamAmount / 10) * 0.02) : now;
+    for (let i = 1; i <= rollHits; i++) {
+      fire(vel * (0.8 - i * 0.1), base + i * 0.03);
+    }
+  }
+}
+
 // Update step display based on current state
 function updateStepDisplay() {
   const pattern = patterns[variation][currentPattern];
@@ -3539,15 +3576,15 @@ function resetPatternControls(instrument) {
   refreshPatternFxBadges();
 }
 
-// Randomize PATTERN CONTROLS only — capped near-neutral (no flam/roll chaos)
+// Randomize PATTERN CONTROLS — audible ranges (must be heard while Play is running)
 function randomizePatternControls(instrument) {
   const randomPatternValues = {
-    modalProbability: 8 + Math.random() * 2, // 8-10
-    modalVelocity: 4 + Math.random() * 2, // 4-6
-    modalTiming: 4 + Math.random() * 2, // 4-6
-    modalFlam: 0,
-    modalRoll: 0,
-    modalPitchBend: 4 + Math.random() * 2 // 4-6
+    modalProbability: 5 + Math.random() * 5,   // 5–10 (50–100% hit chance)
+    modalVelocity: Math.random() * 10,         // full swing / ghost range
+    modalTiming: Math.random() * 10,           // ±50 ms around center
+    modalFlam: Math.random() < 0.55 ? (2 + Math.random() * 8) : 0,
+    modalRoll: Math.random() < 0.45 ? (4 + Math.random() * 6) : 0, // >3 enables rolls
+    modalPitchBend: 2 + Math.random() * 6      // clear detune either side of 5
   };
   
   Object.entries(randomPatternValues).forEach(([param, value]) => {
@@ -3725,8 +3762,11 @@ function updatePatternControlsUI() {
   
   patternKnobs.forEach(knob => {
     const element = document.getElementById(knob.id);
-    if (element) {
-      element.dataset.value = knob.value;
+    if (!element) return;
+    element.dataset.value = knob.value;
+    if (window.GCKnobs && typeof window.GCKnobs.set === 'function') {
+      window.GCKnobs.set(knob.id, knob.value, { silent: true });
+    } else {
       updateModalKnobRotationGlobal(knob.value, element);
     }
   });
@@ -4148,12 +4188,11 @@ function setupEventListeners() {
 
         updateStepDisplay();
 
-        // Play sound when programming
+        // Play sound when programming — apply modal flam/roll/pitch so pattern
+        // knobs are audible without needing Transport Play.
         if (cell[instrumentType] && canTrigger(instrumentType)) {
-          const level = (knobValues[`level${instrumentType.charAt(0).toUpperCase()}${instrumentType.slice(1)}`] || 7) / 10;
           const cellVelocity = cell[instrumentType] === true ? 100 : Number(cell[instrumentType]) || 100;
-          triggerInstrument(instrumentType, Math.min(1, level * (cellVelocity / 100)), 0,
-            { velocity: cellVelocity, immediate: true }); // No lookahead for manual triggering
+          previewPatternHit(instrumentType, cellVelocity);
         }
       }
     });
