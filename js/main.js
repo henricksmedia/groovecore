@@ -17,7 +17,7 @@
 // Asset version: bump on every deploy (and mirror in index.html's ?v= tags +
 // sw.js CACHE name) so browsers pick up new module/CSS code on a normal
 // reload instead of serving heuristically-cached copies.
-const ASSET_V = 'gc9';
+const ASSET_V = 'gc10';
 
 const MODULES = [
   '/js/ui/ui-kit.js',
@@ -93,8 +93,14 @@ async function boot() {
 
   // Service worker: https only, so local file/HTTP dev never caches a stale
   // shell (plan §10). Registration failure is silently non-fatal.
+  // On update, sw.js calls skipWaiting + clients.claim so the new worker
+  // takes over immediately (and no longer caches Cloudflare redirects).
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => {
+        try { reg.update(); } catch (e) { /* noop */ }
+      })
+      .catch(() => {});
   }
 }
 

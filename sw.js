@@ -2,15 +2,16 @@
  * GrooveCore service worker (WS-I)
  * Versioned precache of the full app shell; cache-first with network fallback.
  * Bump CACHE on every deploy so clients pick up the new shell.
- * Precaching is per-file with a catch so files that land in parallel
- * workstreams (or are renamed later) never break install.
+ *
+ * Cloudflare Pages: NEVER cache redirected responses. A followed 301/302 still
+ * has response.ok === true and response.redirected === true; caching those
+ * breaks later navigations ("loads once, then not again").
  */
 
-const CACHE = 'gc-v7';
+const CACHE = 'gc-v8';
 
 const PRECACHE = [
-  // Shell
-  '/',
+  // Shell (prefer index.html over "/" — "/" often 301/302 on Pages)
   '/index.html',
   '/styles.css',
   '/app.js',
@@ -95,19 +96,38 @@ const PRECACHE = [
   '/icons/og.png'
 ];
 
+/** Only clean same-origin 200s — never redirects (Cloudflare Pages safe). */
+function isCacheable(response) {
+  return !!(
+    response
+    && response.status === 200
+    && !response.redirected
+    && response.type === 'basic'
+  );
+}
+
+function precacheUrl(cache, url) {
+  return fetch(url, { redirect: 'follow', cache: 'no-cache' })
+    .then((response) => {
+      if (!isCacheable(response)) {
+        console.warn('[sw] precache skipped (not a clean 200):', url,
+          response && response.status, response && response.redirected);
+        return;
+      }
+      return cache.put(url, response);
+    })
+    .catch((err) => {
+      console.warn('[sw] precache skipped:', url, err && err.message);
+    });
+}
+
 self.addEventListener('install', (event) => {
+  // Forces the waiting worker active immediately on update
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE).then((cache) =>
-      // Add each entry individually and swallow per-file failures:
-      // modules land in parallel workstreams and must never break install.
-      Promise.all(
-        PRECACHE.map((url) =>
-          cache.add(url).catch((err) => {
-            console.warn('[sw] precache skipped:', url, err && err.message);
-          })
-        )
-      )
-    ).then(() => self.skipWaiting())
+      Promise.all(PRECACHE.map((url) => precacheUrl(cache, url)))
+    )
   );
 });
 
@@ -133,17 +153,21 @@ self.addEventListener('fetch', (event) => {
   const isNavigation = req.mode === 'navigate';
   const cacheKey = isNavigation ? '/index.html' : url.pathname;
 
+  // Never try to cache the service worker script itself via this path.
+  if (url.pathname === '/sw.js') return;
+
   event.respondWith(
     caches.open(CACHE).then((cache) =>
       cache.match(cacheKey).then((cached) => {
         if (cached) return cached;
-        return fetch(req).then((response) => {
-          // Cache successful same-origin responses so lazily loaded
-          // modules become offline-available after first use.
-          if (response && response.ok && response.type === 'basic') {
-            cache.put(cacheKey, response.clone());
+
+        return fetch(req).then((networkResponse) => {
+          // CRITICAL: do not cache redirected responses (Pages trailing-slash /
+          // apex redirects). Followed redirects still report ok === true.
+          if (isCacheable(networkResponse)) {
+            cache.put(cacheKey, networkResponse.clone());
           }
-          return response;
+          return networkResponse;
         }).catch(() => {
           // Offline and not cached: fall back to the shell for navigations.
           if (isNavigation) return cache.match('/index.html');
