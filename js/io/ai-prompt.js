@@ -7,9 +7,10 @@
  * names; concise.
  *
  * When a style/inspiration preset was loaded (GC.currentPresetSelection), the
- * prompt LEADS with that preset's label + genre from PRESET_META so it matches
- * what the user chose. Rhythm tags still come from the live grid. If no preset
- * is selected (hand-edited pattern), genre is inferred from BPM + hit shape.
+ * prompt LEADS with that preset's genre (Suno-readable), never the GrooveCore
+ * track title — names like "Astral Backwater Echo" mean nothing to Suno.
+ * Rhythm tags still come from the live grid. If no preset is selected
+ * (hand-edited pattern), genre is inferred from BPM + hit shape.
  *
  * ES module; exports init(GC) + buildStylePrompt(); attaches window.GCAIPrompt.
  */
@@ -73,22 +74,31 @@ function inferGenre(bpm, f) {
     return 'electronic groove';
 }
 
-/** Lead-in from the chosen preset (label + genre), or null if none. */
+/** Map Browse genre chips to Suno-friendly style phrases (no track titles). */
+const GENRE_TO_SUNO = {
+    'Treq': null, // fall through to rhythm inference — brand, not a Suno tag
+    'Psyblues': 'delta blues, swampy foot-stomp, psybient atmosphere',
+    'Delta Blues': 'delta blues, swampy foot-stomp shuffle, dusty front-porch groove',
+    'Psybient': 'psybient, psychill',
+    'Trip Hop': 'trip hop',
+    'Reggae': 'reggae, dub',
+    'Garage': 'UK garage, 2-step',
+    'IDM': 'IDM, glitch',
+    'Industrial': 'industrial, EBM',
+    'Trance': 'trance',
+    'Psy': 'psytrance',
+};
+
+/** Lead-in from the chosen preset's genre only — never the track label. */
 function presetLeadIn(g) {
     const sel = g && g.currentPresetSelection;
     if (!sel || !sel.kind || !sel.key) return null;
     const meta = findMeta(sel.kind, sel.key);
-    if (!meta) {
-        // Key remembered but meta missing — still use the raw key as a hint
-        return sel.key.replace(/_/g, ' ');
+    if (!meta || !meta.genre) return null;
+    if (Object.prototype.hasOwnProperty.call(GENRE_TO_SUNO, meta.genre)) {
+        return GENRE_TO_SUNO[meta.genre];
     }
-    const parts = [];
-    if (meta.label) parts.push(meta.label);
-    // Genre chip (Trap, House, …). Skip "Treq" — the label already carries the style.
-    if (meta.genre && meta.genre !== 'Treq') {
-        parts.push(meta.genre.toLowerCase());
-    }
-    return parts.length ? parts.join(', ') : null;
+    return meta.genre.toLowerCase();
 }
 
 function buildStylePrompt() {
@@ -115,7 +125,7 @@ function buildStylePrompt() {
     const lead = presetLeadIn(g);
     const parts = [lead || inferGenre(bpm, f)];
 
-    // Rhythm skeleton (from the live grid — still useful alongside the preset name)
+    // Rhythm skeleton (from the live grid)
     if (f.fourOnFloor) parts.push('four-on-the-floor 808 kick');
     else if (count(steps, 'bd') <= 3 && count(steps, 'bd') > 0) parts.push('sparse deep 808 kick');
     else if (count(steps, 'bd') > 0) parts.push('syncopated 808 kick');
