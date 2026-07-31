@@ -271,7 +271,7 @@ function buildPanel() {
     <div class="gc-pb-backdrop"></div>
     <div class="gc-pb-panel" role="dialog" aria-modal="true" aria-label="Preset browser">
       <div class="gc-pb-head">
-        <input class="gc-pb-search" type="search" placeholder="Search 171 grooves…  (press /)"
+        <input class="gc-pb-search" type="search" placeholder="Search presets…  (press /)"
                aria-label="Search presets" autocomplete="off" spellcheck="false">
         <button class="gc-pb-surprise" type="button" title="Load a random preset">🎲 Surprise me</button>
         <button class="gc-pb-close" type="button" aria-label="Close preset browser">✕</button>
