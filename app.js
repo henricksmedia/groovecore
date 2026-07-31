@@ -1487,9 +1487,18 @@ function loadStylePreset(styleName) {
   
   // Update nixie tube BPM display
   updateNixieBPMDisplay(tempo);
-  
-  
-  // Clear current pattern first
+
+  // Optional preset swing (0–10 knob). Blues/shuffle presets set this.
+  if (preset.swing != null && isFinite(preset.swing)) {
+    knobValues.swing = Math.max(0, Math.min(10, Number(preset.swing)));
+    const swingKnob = document.querySelector('#swing');
+    if (swingKnob && window.GCKnobs && typeof window.GCKnobs.set === 'function') {
+      window.GCKnobs.set('swing', knobValues.swing, { silent: true });
+    } else if (swingKnob) {
+      swingKnob.setAttribute('data-value', String(knobValues.swing));
+    }
+  }
+
   const pattern = patterns[variation][currentPattern];
   pattern.part1 = Array(16).fill().map(() => ({}));
   pattern.length1 = 16; // Ensure length is set

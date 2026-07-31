@@ -12,7 +12,7 @@
 // =============================================================================
 
 export const PRESET_META = [
-  // ===== Styles (103) ========================================================
+  // ===== Styles (108) ========================================================
   { kind: 'style', key: 'treq',                 label: 'Misty Folktronica',       emoji: '🌲', bpm: 92,  genre: 'Treq' },
   { kind: 'style', key: 'treq_empire',          label: 'Cinematic Tribal',        emoji: '🥁', bpm: 100, genre: 'Treq' },
   { kind: 'style', key: 'treq_synthpop',        label: 'Warm Synthpop',           emoji: '🎹', bpm: 104, genre: 'Treq' },
@@ -57,6 +57,11 @@ export const PRESET_META = [
   { kind: 'style', key: 'psybient_soma',        label: 'Soma Cascade',            emoji: '🌀', bpm: 104, genre: 'Psybient' },
   { kind: 'style', key: 'psybient_ether',       label: 'Ether Drone',             emoji: '🫧', bpm: 90,  genre: 'Psybient' },
   { kind: 'style', key: 'psybient_chrysalis',   label: 'Chrysalis Journey',       emoji: '🦋', bpm: 100, genre: 'Psybient' },
+  { kind: 'style', key: 'psyblues_crossroads',  label: 'Crossroads Ambient Stomp',emoji: '🛤️', bpm: 88,  genre: 'Psyblues' },
+  { kind: 'style', key: 'psyblues_muddy',       label: 'Muddy Matrix Shuffle',    emoji: '🐊', bpm: 90,  genre: 'Psyblues' },
+  { kind: 'style', key: 'psyblues_mojo',        label: 'Mojo Ghost Tumbler',      emoji: '👻', bpm: 84,  genre: 'Psyblues' },
+  { kind: 'style', key: 'psyblues_astral',      label: 'Astral Backwater Echo',   emoji: '🌌', bpm: 82,  genre: 'Psyblues' },
+  { kind: 'style', key: 'psyblues_voodoo',      label: 'Voodoo Nebula',           emoji: '⚡', bpm: 92,  genre: 'Psyblues' },
   { kind: 'style', key: 'reggae_king_tubby',    label: 'King Tubby Drop',         emoji: '👑', bpm: 76,  genre: 'Reggae' },
   { kind: 'style', key: 'reggae_zion_stepper',  label: 'Zion Stepper',            emoji: '✊', bpm: 84,  genre: 'Reggae' },
   { kind: 'style', key: 'reggae_rockers',       label: 'Rockers Skank',           emoji: '🎸', bpm: 88,  genre: 'Reggae' },
