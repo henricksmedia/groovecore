@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced MIDI Export Test</title>
+  <style>
+    body {
+      font-family: 'Consolas', monospace;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+      line-height: 1.6;
+    }
+    .test-section {
+      background: #2a2a2a;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    button:hover { background: #45a049; }
+    .enhanced { background: #2196F3; }
+    .enhanced:hover { background: #1976D2; }
+    .multitrack { background: #FF9800; }
+    .multitrack:hover { background: #F57C00; }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .success { background: #1b4d3e; border-left: 4px solid #4CAF50; }
+    .error { background: #4d1b1b; border-left: 4px solid #f44336; }
+    .info { background: #1b2d4d; border-left: 4px solid #2196F3; }
+    pre {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+      border: 1px solid #333;
+    }
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 2px solid #444;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎹 Enhanced MIDI Export Test</h1>
+    <p>Testing the new Cakewalk-compatible MIDI export functions</p>
+  </div>
+
+  <div class="test-section">
+    <h2>🧪 Test Functions</h2>
+    <button onclick="testLibraryStatus()">Check MIDI Library Status</button>
+    <button onclick="testMappings()">Test GM Mappings</button>
+    <button onclick="createTestPattern()">Create Test Pattern</button>
+    <button onclick="clearResults()">Clear Results</button>
+  </div>
+
+  <div class="test-section">
+    <h2>🎵 Export Tests</h2>
+    <button class="enhanced" onclick="testEnhancedExport()">Test Enhanced Export</button>
+    <button class="multitrack" onclick="testMultiTrackExport()">Test Multi-Track Export</button>
+    <button class="enhanced" onclick="testWithMixData()">Test With Mix Data</button>
+  </div>
+
+  <div class="test-section">
+    <h2>📊 Test Results</h2>
+    <div id="results"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>🎼 Pattern Preview</h2>
+    <pre id="patternPreview">No test pattern created yet...</pre>
+  </div>
+
+  <!-- Load required scripts -->
+  <script src="https://unpkg.com/midi-writer-js@3.1.1/build/index.js"></script>
+  <script src="midi-mapping.js"></script>
+  <script src="midi_export_enhanced.js"></script>
+  
+  <script>
+    // Mock the GrooveCore environment for testing
+    let patterns = {
+      a: [{
+        part1: [],
+        part2: [],
+        length1: 16,
+        length2: 0
+      }]
+    };
+    
+    let variation = 'a';
+    let currentPattern = 0;
+    let tempo = 128;
+    
+    // Mock knob values
+    let knobValues = {
+      levelBd: 8, levelSd: 7, levelHc: 6, levelOh: 5,
+      levelCb: 6, levelCh: 7, levelCl: 5, levelMa: 4,
+      levelLt: 6, levelMt: 6, levelHt: 6, levelCr: 7, levelCym: 6,
+      levelRim: 5, levelAccent: 8
+    };
+    
+    // Mock modal knob values
+    let modalKnobValues = {
+      modalProbability: 10,
+      modalVelocity: 8,
+      modalTiming: 5
+    };
+
+    const resultsDiv = document.getElementById('results');
+    const patternDiv = document.getElementById('patternPreview');
+
+    function addResult(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `status ${type}`;
+      div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+      resultsDiv.appendChild(div);
+      resultsDiv.scrollTop = resultsDiv.scrollHeight;
+    }
+
+    function clearResults() {
+      resultsDiv.innerHTML = '';
+      patternDiv.textContent = 'No test pattern created yet...';
+    }
+
+    function testLibraryStatus() {
+      addResult('🔍 Checking MIDI library status...', 'info');
+      
+      if (typeof window.MidiWriter !== 'undefined') {
+        addResult('✅ MidiWriter library loaded successfully', 'success');
+        addResult(`📊 Library version: ${window.MidiWriter.version || 'Unknown'}`, 'info');
+      } else {
+        addResult('❌ MidiWriter library not loaded', 'error');
+      }
+      
+      if (typeof window.GrooveCoreMIDI !== 'undefined') {
+        addResult('✅ GrooveCore MIDI mapping loaded', 'success');
+        const mappingCount = Object.keys(window.GrooveCoreMIDI.GROOVECORE_MIDI_MAPPING).length;
+        addResult(`📊 ${mappingCount} instruments mapped`, 'info');
+      } else {
+        addResult('❌ GrooveCore MIDI mapping not loaded', 'error');
+      }
+      
+      if (typeof exportPatternToMidiEnhanced === 'function') {
+        addResult('✅ Enhanced export function available', 'success');
+      } else {
+        addResult('❌ Enhanced export function not available', 'error');
+      }
+      
+      if (typeof exportPatternToMidiMultiTrack === 'function') {
+        addResult('✅ Multi-track export function available', 'success');
+      } else {
+        addResult('❌ Multi-track export function not available', 'error');
+      }
+    }
+
+    function testMappings() {
+      addResult('🎯 Testing GM drum mappings...', 'info');
+      
+      if (!window.GrooveCoreMIDI) {
+        addResult('❌ Cannot test mappings - not loaded', 'error');
+        return;
+      }
+      
+      const mapping = window.GrooveCoreMIDI.GROOVECORE_MIDI_MAPPING;
+      const criticalTests = [
+        { name: 'Bass Drum', inst: 'bd', expected: 36 },
+        { name: 'Snare Drum', inst: 'sd', expected: 38 },
+        { name: 'Clap (CRITICAL FIX)', inst: 'ch', expected: 39 },
+        { name: 'Hi-Hat Closed (CRITICAL FIX)', inst: 'hc', expected: 42 },
+        { name: 'Hi-Hat Mid (CRITICAL FIX)', inst: 'mc', expected: 44 },
+        { name: 'Hi-Hat Open (CRITICAL FIX)', inst: 'lc', expected: 46 }
+      ];
+      
+      let passed = 0;
+      criticalTests.forEach(test => {
+        if (mapping[test.inst] === test.expected) {
+          addResult(`✅ ${test.name}: MIDI ${mapping[test.inst]} ✓`, 'success');
+          passed++;
+        } else {
+          addResult(`❌ ${test.name}: got ${mapping[test.inst]}, expected ${test.expected}`, 'error');
+        }
+      });
+      
+      addResult(`📊 Mapping test: ${passed}/${criticalTests.length} passed`, passed === criticalTests.length ? 'success' : 'error');
+    }
+
+    function createTestPattern() {
+      addResult('🎼 Creating test pattern with all instruments...', 'info');
+      
+      // Create a test pattern with a classic 808 beat
+      const testPattern = {
+        part1: [],
+        part2: [],
+        length1: 16,
+        length2: 0
+      };
+      
+      // Initialize all steps
+      for (let i = 0; i < 16; i++) {
+        testPattern.part1[i] = {};
+      }
+      
+      // Classic 808 pattern
+      testPattern.part1[0] = { bd: true };           // Kick on 1
+      testPattern.part1[4] = { sd: true };           // Snare on 2
+      testPattern.part1[6] = { hc: true };           // Closed hat
+      testPattern.part1[8] = { bd: true };           // Kick on 3
+      testPattern.part1[10] = { hc: true };          // Closed hat
+      testPattern.part1[12] = { sd: true, ch: true }; // Snare + clap on 4
+      testPattern.part1[14] = { oh: true };          // Open hat
+      testPattern.part1[3] = { accent: true };       // Accent on off-beat
+      testPattern.part1[11] = { accent: true };      // Accent on off-beat
+      
+      // Add some percussion
+      testPattern.part1[1] = { cb: true };           // Cowbell
+      testPattern.part1[9] = { cb: true };           // Cowbell
+      testPattern.part1[5] = { cl: true };           // Clave
+      testPattern.part1[13] = { cl: true };          // Clave
+      
+      patterns[variation][currentPattern] = testPattern;
+      
+      // Display pattern
+      const patternDisplay = {
+        tempo: tempo,
+        pattern: testPattern,
+        activeSteps: []
+      };
+      
+      testPattern.part1.forEach((step, index) => {
+        if (step && Object.keys(step).length > 0) {
+          patternDisplay.activeSteps.push({
+            step: index + 1,
+            instruments: Object.keys(step).filter(inst => step[inst])
+          });
+        }
+      });
+      
+      patternDiv.textContent = JSON.stringify(patternDisplay, null, 2);
+      
+      addResult('✅ Test pattern created successfully', 'success');
+      addResult(`📊 Pattern: ${patternDisplay.activeSteps.length} active steps`, 'info');
+    }
+
+    function testEnhancedExport() {
+      addResult('🎵 Testing enhanced MIDI export...', 'info');
+      
+      if (!patterns[variation][currentPattern] || !patterns[variation][currentPattern].part1) {
+        addResult('❌ No test pattern available - create one first', 'error');
+        return;
+      }
+      
+      try {
+        exportPatternToMidiEnhanced();
+        addResult('✅ Enhanced export completed successfully', 'success');
+      } catch (error) {
+        addResult(`❌ Enhanced export failed: ${error.message}`, 'error');
+      }
+    }
+
+    function testMultiTrackExport() {
+      addResult('🎵 Testing multi-track MIDI export...', 'info');
+      
+      if (!patterns[variation][currentPattern] || !patterns[variation][currentPattern].part1) {
+        addResult('❌ No test pattern available - create one first', 'error');
+        return;
+      }
+      
+      try {
+        exportPatternToMidiMultiTrack();
+        addResult('✅ Multi-track export completed successfully', 'success');
+      } catch (error) {
+        addResult(`❌ Multi-track export failed: ${error.message}`, 'error');
+      }
+    }
+
+    function testWithMixData() {
+      addResult('🎵 Testing enhanced export with mix data...', 'info');
+      
+      if (!patterns[variation][currentPattern] || !patterns[variation][currentPattern].part1) {
+        addResult('❌ No test pattern available - create one first', 'error');
+        return;
+      }
+      
+      try {
+        exportPatternToMidiEnhanced({ includeMixData: true });
+        addResult('✅ Enhanced export with mix data completed successfully', 'success');
+      } catch (error) {
+        addResult(`❌ Enhanced export with mix data failed: ${error.message}`, 'error');
+      }
+    }
+
+    // Auto-run initial tests
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        addResult('🚀 Enhanced MIDI Export Test Page Loaded', 'info');
+        testLibraryStatus();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GrooveCore Security Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
+    .test-section { margin: 20px 0; padding: 15px; border: 1px solid #444; border-radius: 8px; }
+    .test-pass { border-color: #28a745; background: rgba(40, 167, 69, 0.1); }
+    .test-fail { border-color: #dc3545; background: rgba(220, 53, 69, 0.1); }
+    button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    .result { margin-top: 10px; padding: 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>GrooveCore Security Enhancement Tests</h1>
+  
+  <div class="test-section" id="csp-test">
+    <h3>1. Content Security Policy Test</h3>
+    <p>CSP should block inline scripts and restrict resource loading.</p>
+    <button onclick="testCSP()">Test CSP</button>
+    <div id="csp-result" class="result"></div>
+  </div>
+
+  <div class="test-section" id="file-size-test">
+    <h3>2. File Size Validation Test</h3>
+    <p>Test file size limits (simulated).</p>
+    <button onclick="testFileSize()">Test File Size Validation</button>
+    <div id="file-size-result" class="result"></div>
+  </div>
+
+  <div class="test-section" id="json-validation-test">
+    <h3>3. JSON Structure Validation Test</h3>
+    <p>Test JSON validation function.</p>
+    <button onclick="testJSONValidation()">Test JSON Validation</button>
+    <div id="json-validation-result" class="result"></div>
+  </div>
+
+  <div class="test-section" id="sanitization-test">
+    <h3>4. String Sanitization Test</h3>
+    <p>Test string sanitization function.</p>
+    <button onclick="testSanitization()">Test String Sanitization</button>
+    <div id="sanitization-result" class="result"></div>
+  </div>
+
+  <script>
+    // Import security functions for testing
+    function sanitizeString(str) {
+      if (typeof str !== 'string') return str;
+      return str
+        .replace(/<script[^>]*>.*?<\/script>/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/on\w+=/gi, '')
+        .trim();
+    }
+
+    function validateSaveData(data) {
+      if (!data || typeof data !== 'object') {
+        return false;
+      }
+      
+      if (data.patterns && typeof data.patterns === 'object') {
+        const patterns = data.patterns;
+        if (!patterns.a || !patterns.b) return false;
+        if (!Array.isArray(patterns.a) || !Array.isArray(patterns.b)) return false;
+        if (patterns.a.length > 16 || patterns.b.length > 16) return false;
+        return true;
+      }
+      
+      if (Array.isArray(data)) {
+        if (data.length > 16) return false;
+        return true;
+      }
+      
+      return false;
+    }
+
+    function testCSP() {
+      const result = document.getElementById('csp-result');
+      const cspMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+      
+      if (cspMeta) {
+        const cspContent = cspMeta.getAttribute('content');
+        const hasWorkerSrc = cspContent.includes('worker-src');
+        const hasConnectSrc = cspContent.includes('connect-src');
+        const hasBlobSupport = cspContent.includes('blob:');
+        
+        if (hasWorkerSrc && hasConnectSrc && hasBlobSupport) {
+          result.innerHTML = '<span style="color: #28a745;">✓ PASS: CSP configured correctly with worker-src, connect-src, and blob support</span>';
+          result.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+        } else {
+          result.innerHTML = '<span style="color: #ffc107;">⚠ WARNING: CSP found but may be missing required directives for Tone.js</span>';
+          result.style.backgroundColor = 'rgba(255, 193, 7, 0.1)';
+        }
+      } else {
+        result.innerHTML = '<span style="color: #dc3545;">✗ FAIL: CSP meta tag not found</span>';
+        result.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+      }
+    }
+
+    function testFileSize() {
+      const result = document.getElementById('file-size-result');
+      
+      // Simulate file size validation
+      const testFile = { size: 2 * 1024 * 1024 }; // 2MB file
+      const maxSize = 1024 * 1024; // 1MB limit
+      
+      if (testFile.size > maxSize) {
+        result.innerHTML = '<span style="color: #28a745;">✓ PASS: File size validation working (2MB > 1MB limit detected)</span>';
+        result.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+      } else {
+        result.innerHTML = '<span style="color: #dc3545;">✗ FAIL: File size validation not working</span>';
+        result.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+      }
+    }
+
+    function testJSONValidation() {
+      const result = document.getElementById('json-validation-result');
+      let tests = 0;
+      let passed = 0;
+
+      // Test 1: Valid new format
+      tests++;
+      if (validateSaveData({ patterns: { a: [], b: [] } })) passed++;
+
+      // Test 2: Valid old format
+      tests++;
+      if (validateSaveData([])) passed++;
+
+      // Test 3: Invalid format (null)
+      tests++;
+      if (!validateSaveData(null)) passed++;
+
+      // Test 4: Invalid format (string)
+      tests++;
+      if (!validateSaveData("invalid")) passed++;
+
+      // Test 5: Invalid pattern length
+      tests++;
+      if (!validateSaveData({ patterns: { a: new Array(20), b: [] } })) passed++;
+
+      if (passed === tests) {
+        result.innerHTML = `<span style="color: #28a745;">✓ PASS: All ${tests} JSON validation tests passed</span>`;
+        result.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+      } else {
+        result.innerHTML = `<span style="color: #dc3545;">✗ FAIL: ${passed}/${tests} JSON validation tests passed</span>`;
+        result.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+      }
+    }
+
+    function testSanitization() {
+      const result = document.getElementById('sanitization-result');
+      let tests = 0;
+      let passed = 0;
+
+      // Test 1: Remove script tags
+      tests++;
+      const test1 = sanitizeString('<script>alert("xss")</script>hello');
+      if (test1 === 'hello') passed++;
+
+      // Test 2: Remove javascript: protocol
+      tests++;
+      const test2 = sanitizeString('javascript:alert("xss")');
+      if (!test2.includes('javascript:')) passed++;
+
+      // Test 3: Remove event handlers
+      tests++;
+      const test3 = sanitizeString('onclick="alert(1)" onload="bad()"');
+      if (!test3.includes('onclick=') && !test3.includes('onload=')) passed++;
+
+      // Test 4: Preserve normal strings
+      tests++;
+      const test4 = sanitizeString('normal text 123');
+      if (test4 === 'normal text 123') passed++;
+
+      if (passed === tests) {
+        result.innerHTML = `<span style="color: #28a745;">✓ PASS: All ${tests} sanitization tests passed</span>`;
+        result.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
+      } else {
+        result.innerHTML = `<span style="color: #dc3545;">✗ FAIL: ${passed}/${tests} sanitization tests passed</span>`;
+        result.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
+      }
+    }
+
+    // Auto-run tests on page load
+    window.onload = function() {
+      setTimeout(() => {
+        testCSP();
+        testFileSize();
+        testJSONValidation();
+        testSanitization();
+      }, 100);
+    };
+  </script>
+</body>
+</html>

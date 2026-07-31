@@ -1,0 +1,318 @@
+/* =============================================================================
+   GrooveCore shell redesign — one top bar, one machine panel, one deck row.
+   Loaded after styles.css/brand.css; overrides Tailwind utility colors so the
+   whole app speaks a single visual language.
+   ============================================================================= */
+
+/* The loading screen must cover EVERYTHING until the app is ready. It ships
+   at z-index 1000 — a dead tie with the fixed .app-header (also 1000), and on
+   a tie DOM order wins, so the header painted on top of the loader (menu
+   flashes in, loader runs under it, app pops). Loader goes above all chrome. */
+.loader-wrapper {
+  z-index: 4000;
+}
+
+/* ---- Page frame ------------------------------------------------------------ */
+.main-content {
+  max-width: 1240px;
+  margin: 0 auto;
+  /* Clearance so the last content (chain bar) can scroll fully above the
+     sticky deck; --gc-deck-h is kept current by js/ui/mobile.js. */
+  padding-bottom: calc(var(--gc-deck-h, 150px) + 20px) !important;
+}
+
+/* The header is position:fixed at >=1024px; styles.css compensated with a
+   hardcoded 170px sized for the old two-row header. Pad by measurement
+   (--gc-header-h, published by js/ui/mobile.js) so there is never a dead band
+   between the bar and the machine. */
+@media (min-width: 1024px) {
+  .main-content {
+    padding-top: calc(var(--gc-header-h, 82px) + 18px) !important;
+  }
+}
+
+.app-header {
+  border-bottom: 1px solid var(--gc-border-strong, #333);
+  background: var(--gc-surface-1, #141414);
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+/* ---- Single top bar: brand | browse | project actions ---------------------- */
+.gc-topbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.gc-topbar .gc-brand { order: 0; }
+.gc-topbar .quick-actions { order: 1; flex: 1 1 auto; justify-content: center; margin: 0; }
+.gc-topbar .project-controls { order: 2; margin-left: auto; }
+
+/* ---- One button language ---------------------------------------------------
+   The header buttons previously wore five different Tailwind palettes
+   (orange/gray/blue/red). Everything becomes a quiet surface button; SAVE is
+   the single primary. Hover = orange border, not a new color. */
+.project-controls button {
+  background: var(--gc-surface-3, #232323) !important;
+  border: 1px solid var(--gc-border-strong, #3a3a3a) !important;
+  color: var(--gc-text, #e8e8e8) !important;
+  border-radius: var(--gc-radius-md, 6px);
+}
+
+.project-controls button:hover,
+.project-controls button:focus-visible {
+  background: var(--gc-surface-3, #232323) !important;
+  border-color: var(--gc-orange, #ff4500) !important;
+}
+
+.project-controls #save {
+  background: var(--gc-orange, #ff4500) !important;
+  border-color: var(--gc-orange, #ff4500) !important;
+  color: #fff !important;
+}
+
+.project-controls #save:hover,
+.project-controls #save:focus-visible {
+  background: var(--gc-orange-light, #ff6a2b) !important;
+  border-color: var(--gc-orange-light, #ff6a2b) !important;
+}
+
+/* polish.css sets #reset { background: var(--gc-danger-dim) !important } — the
+   id selector beats a plain class rule, so match it with higher specificity:
+   RESET is a quiet button whose danger shows on hover, not at rest. */
+.project-controls #reset {
+  background: var(--gc-surface-3, #232323) !important;
+  border-color: var(--gc-border-strong, #3a3a3a) !important;
+  color: var(--gc-text, #e8e8e8) !important;
+}
+
+.project-controls #reset:hover,
+.project-controls #reset:focus-visible {
+  border-color: #d33c2e !important;
+  color: #ff7a6e !important;
+}
+
+/* Every transport control shares one height and one resting style. REC ships
+   with no classes at all (only its armed/recording states are styled), so it
+   gets the full base treatment here — without !important, so polish.css's
+   .armed/.recording state colors still win. */
+.gc-transport > button,
+.gc-transport .variation-switch .variation-btn {
+  min-height: 34px;
+}
+
+.gc-transport #recordBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--gc-surface-3, #232323);
+  border: 1px solid var(--gc-border-strong, #3a3a3a);
+  border-radius: var(--gc-radius-md, 6px);
+  color: var(--gc-text, #e8e8e8);
+}
+
+/* CLEAR follows the RESET pattern — quiet at rest, danger on hover — so PLAY
+   is the transport's only filled button. */
+.gc-transport .clear-button {
+  background: var(--gc-surface-3, #232323) !important;
+  border: 1px solid var(--gc-border-strong, #3a3a3a) !important;
+  color: var(--gc-text, #e8e8e8) !important;
+}
+
+.gc-transport .clear-button:hover,
+.gc-transport .clear-button:focus-visible {
+  border-color: #d33c2e !important;
+  color: #ff7a6e !important;
+}
+
+/* ---- The machine panel: the one centerpiece -------------------------------- */
+.step-sequencer-panel {
+  background: linear-gradient(180deg, #1c1c1c 0%, #151515 100%);
+  border: 1px solid var(--gc-border-strong, #333);
+  border-radius: 12px;
+  padding: 12px 16px 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  margin-top: 0;
+}
+
+.sequencer-header { margin-bottom: 4px; }
+
+.sequencer-header .section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gc-text-dim, #9a9a9a);
+}
+
+/* Grid breathing room */
+.gc-grid-scroll { padding-bottom: 4px; }
+
+/* ---- Grid readability ------------------------------------------------------
+   Pads are LEDs, not labels. The numbers stay in the header row; the 288 cell
+   numbers below it were pure noise. (fx badges set their own font-size and the
+   velocity fill bar is a pseudo-element, so both survive.) */
+.step-button {
+  font-size: 0 !important;
+  border-color: #3a3a3a !important;
+  /* Textless pads have no intrinsic width; the mobile grid sizes rows by
+     max-content, so without this the pads collapse to zero. */
+  min-width: 36px;
+}
+
+/* The header number cells need the same minimum, or their row (a separate
+   grid sized by max-content) computes narrower columns and drifts out of
+   alignment with the pads. */
+.pattern-labels .pattern-label {
+  min-width: 36px;
+}
+
+.step-button:hover { border-color: var(--gc-orange, #ff4500) !important; }
+
+/* Playhead = an orange ring sweeping the grid, not a repaint of every cell.
+   Active cells keep their instrument color and simply glow brighter when the
+   playhead passes. */
+.step-button.blink {
+  background: rgba(255, 255, 255, 0.07) !important;
+  box-shadow: inset 0 0 0 2px var(--gc-orange, #ff4500) !important;
+  animation: none !important;
+}
+
+.step-button.active.blink {
+  background: inherit;
+  filter: brightness(1.4);
+}
+
+/* Instrument labels get room to breathe — no more "BD (BAS..." */
+@media (min-width: 1024px) {
+  .step-sequencer-panel .pattern-labels,
+  .step-sequencer-panel .instrument-row {
+    grid-template-columns: 215px repeat(16, 1fr) 40px !important;
+  }
+}
+
+.instrument-name { overflow: hidden; }
+.instrument-name > span:not(.material-icons) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* Row-settings arrow appears on hover/focus instead of sitting in every row */
+.instrument-name .expand-arrow { opacity: 0; transition: opacity 0.15s ease; }
+.instrument-name:hover .expand-arrow,
+.instrument-row:focus-within .expand-arrow { opacity: 0.8; }
+
+/* polish.css faked the every-4-steps bank gap with margin-left on pads
+   5/9/13. Inside a fixed grid that margin cannot make room — it pushes the
+   full-width pad out of its own column and onto its neighbor (pads 5-6, 9-10,
+   13-14 overlapped by 1px). Even 4px spacing everywhere; the 808 bank strips
+   (red/orange/yellow/cream underlines) already mark the groups of four. */
+.step-button[data-step="5"],
+.step-button[data-step="9"],
+.step-button[data-step="13"],
+.pattern-label[data-column="5"],
+.pattern-label[data-column="9"],
+.pattern-label[data-column="13"] {
+  margin-left: 0 !important;
+}
+
+/* The ALL column: 18 identical filled-orange toggles were louder than the
+   music. Quiet ghost buttons; orange arrives on hover. */
+.row-control-box {
+  background: var(--gc-surface-3, #232323) !important;
+  border: 1px solid var(--gc-border-strong, #3a3a3a);
+}
+
+.row-control-box:hover {
+  background: var(--gc-surface-3, #232323) !important;
+  border-color: var(--gc-orange, #ff4500);
+}
+
+.row-control-box .material-icons {
+  color: var(--gc-text-dim, #9a9a9a) !important;
+  font-size: 16px;
+}
+
+/* ---- Chain bar joins the machine instead of floating ----------------------- */
+#gc-chainBar {
+  max-width: 1240px;
+  margin: 10px auto 0;
+  background: var(--gc-surface-1, #141414);
+  border: 1px solid var(--gc-border-strong, #333);
+  border-radius: 10px;
+}
+
+/* ---- The deck: one row — transport | tempo | master | groove toggle -------- */
+.sticky-bottom-section {
+  border-top: 1px solid var(--gc-border-strong, #333);
+  background: var(--gc-surface-1, #141414);
+}
+
+.bottom-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 6px 12px;
+}
+
+.bottom-panel .gc-transport {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding: 2px 12px 2px 0;
+  border-right: 1px solid var(--gc-border-strong, #333);
+  flex-wrap: nowrap;
+}
+
+.bottom-panel .master-controls-section {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* styles.css centers the knob row; centered content inside an overflow-x
+   scroller clips its left edge unreachably. Start-aligned scrolls correctly. */
+.bottom-panel .master-controls {
+  justify-content: flex-start !important;
+}
+
+/* "ACTIVE PATTERN: A" duplicated the A/B switch in the transport — gone.
+   (JS keeps writing #patternDisplay; hiding it is safe.) */
+.bottom-panel .pattern-status { display: none !important; }
+
+/* TAP / MET: real buttons matching the deck's language */
+#gc-tapTempoBtn,
+#gc-metronomeBtn {
+  min-width: 46px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: var(--gc-surface-3, #232323);
+  border: 1px solid var(--gc-border-strong, #3a3a3a);
+  border-radius: 5px;
+  color: var(--gc-text, #e8e8e8);
+}
+
+#gc-tapTempoBtn:hover,
+#gc-metronomeBtn:hover {
+  border-color: var(--gc-orange, #ff4500);
+}
+
+/* Groove & FX live behind the GROOVE toggle at every width (mobile.css owns
+   the collapse rules); when expanded they take a full row under the deck. */
+.bottom-panel .tab-navigation,
+.bottom-panel .tab-content {
+  flex-basis: 100%;
+}

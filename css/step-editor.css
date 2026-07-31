@@ -1,0 +1,64 @@
+/* =============================================================================
+   GrooveCore step editor visuals (WS-H)
+   Companion to js/ui/step-editor.js. Requires css/tokens.css.
+   ============================================================================= */
+
+/* Velocity fill bar: active steps show their velocity as a bottom-up fill.
+   --vel is set by step-editor.js as velocity/127 (0..1). Steps that have never
+   been velocity-edited default to the legacy full look (--vel falls back 1). */
+.step-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.step-button.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--vel, 1) * 100%);
+  background: rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+  transition: height var(--gc-dur-fast) var(--gc-ease);
+}
+
+/* Number stays readable above the fill */
+.step-button.active {
+  z-index: 0;
+}
+
+/* While a velocity drag is possible, hint the gesture on hover (desktop) */
+@media (hover: hover) {
+  .step-button.active:hover {
+    cursor: ns-resize;
+  }
+}
+
+/* ---- Live velocity bubble -------------------------------------------------- */
+#gc-vel-bubble {
+  position: fixed;
+  z-index: var(--z-toast);
+  display: none;
+  padding: 4px 10px;
+  background: var(--gc-surface-2);
+  color: var(--gc-text);
+  border: 1px solid var(--gc-orange);
+  border-radius: var(--gc-radius-md);
+  box-shadow: var(--gc-shadow-1);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+#gc-vel-bubble.gc-visible {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-button.active::before {
+    transition: none;
+  }
+}

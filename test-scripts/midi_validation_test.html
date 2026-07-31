@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIDI Export Validation - GrooveCore</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff;
+      line-height: 1.6;
+    }
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 2px solid #444;
+      margin-bottom: 30px;
+    }
+    .test-section {
+      background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+      padding: 25px;
+      margin: 20px 0;
+      border-radius: 12px;
+      border: 1px solid #444;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .test-result {
+      padding: 12px 16px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 4px solid;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 14px;
+    }
+    .pass { 
+      background: rgba(76, 175, 80, 0.1); 
+      border-color: #4CAF50;
+      color: #81C784;
+    }
+    .fail { 
+      background: rgba(244, 67, 54, 0.1); 
+      border-color: #f44336;
+      color: #EF5350;
+    }
+    .info { 
+      background: rgba(33, 150, 243, 0.1); 
+      border-color: #2196F3;
+      color: #64B5F6;
+    }
+    .warn {
+      background: rgba(255, 152, 0, 0.1);
+      border-color: #FF9800;
+      color: #FFB74D;
+    }
+    button {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 8px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    }
+    button:hover { 
+      background: linear-gradient(45deg, #45a049, #4CAF50);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+    .midi-button { 
+      background: linear-gradient(45deg, #2196F3, #1976D2);
+      box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+    }
+    .midi-button:hover { 
+      background: linear-gradient(45deg, #1976D2, #2196F3);
+      box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+    }
+    .clear-button {
+      background: linear-gradient(45deg, #FF5722, #E64A19);
+      box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+    }
+    .clear-button:hover {
+      background: linear-gradient(45deg, #E64A19, #FF5722);
+      box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
+    }
+    pre {
+      background: rgba(0,0,0,0.4);
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+      border: 1px solid #333;
+      white-space: pre-wrap;
+    }
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .status-card {
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      text-align: center;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #8BC34A);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    .emoji { font-size: 1.2em; margin-right: 8px; }
+    .timestamp { 
+      color: #888; 
+      font-size: 0.9em;
+      float: right;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/midi-writer-js@3.1.1"></script>
+</head>
+<body>
+  <div class="header">
+    <h1>🎵 GrooveCore MIDI Export Validation Suite</h1>
+    <p>Comprehensive testing and validation of MIDI export functionality</p>
+  </div>
+  
+  <div class="test-section">
+    <h2>🚀 Test Controls</h2>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div style="text-align: center; margin: 20px 0;">
+      <button onclick="runCompleteValidation()">🔍 Run Complete Validation</button>
+      <button onclick="testBasicMidiExport()" class="midi-button">🎼 Test Basic Export</button>
+      <button onclick="testAdvancedMidiExport()" class="midi-button">⚡ Test Advanced Export</button>
+      <button onclick="clearAllResults()" class="clear-button">🗑️ Clear Results</button>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>📊 Test Results</h2>
+    <div id="testResults"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>🔧 System Status</h2>
+    <div class="status-grid">
+      <div class="status-card">
+        <h3>🔗 MIDI Library</h3>
+        <div id="libraryStatus">Checking...</div>
+      </div>
+      <div class="status-card">
+        <h3>🎹 Pattern Data</h3>
+        <div id="patternStatus">No pattern</div>
+      </div>
+      <div class="status-card">
+        <h3>📁 Export Status</h3>
+        <div id="exportStatus">Ready</div>
+      </div>
+      <div class="status-card">
+        <h3>✅ Tests Passed</h3>
+        <div id="testsPassed">0/0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>🎛️ Generated Pattern</h2>
+    <div id="patternData"></div>
+    <button onclick="generateAdvancedTestPattern()">🎵 Generate Advanced Pattern</button>
+    <button onclick="generateBasicTestPattern()">🥁 Generate Basic Pattern</button>
+  </div>
+
+  <div class="test-section">
+    <h2>📁 MIDI File Analysis</h2>
+    <div id="midiAnalysis"></div>
+  </div>
+
+  <script>
+    let testResults = [];
+    let totalTests = 0;
+    let passedTests = 0;
+
+    // Enhanced test pattern data
+    let testPatterns = {
+      basic: {
+        name: "Basic Test Pattern",
+        sequence: [
+          { instrument: 'bd', beat: 1.0, velocity: 100 },
+          { instrument: 'sd', beat: 2.0, velocity:110 },
+          { instrument: 'bd', beat: 3.0, velocity: 95 },
+          { instrument: 'sd', beat: 4.0, velocity: 105 }
+        ]
+      },
+      advanced: {
+        name: "Advanced Test Pattern",
+        sequence: [
+          { instrument: 'bd', beat: 1.0, velocity: 127 },
+          { instrument: 'ch', beat: 1.25, velocity: 80 },
+          { instrument: 'ch', beat: 1.5, velocity: 75 },
+          { instrument: 'ch', beat: 1.75, velocity: 85 },
+          { instrument: 'sd', beat: 2.0, velocity: 120 },
+          { instrument: 'ch', beat: 2.25, velocity: 70 },
+          { instrument: 'oh', beat: 2.5, velocity: 90 },
+          { instrument: 'ch', beat: 2.75, velocity: 75 },
+          { instrument: 'bd', beat: 3.0, velocity: 110 },
+          { instrument: 'ch', beat: 3.25, velocity: 80 },
+          { instrument: 'rim', beat: 3.5, velocity: 95 },
+          { instrument: 'ch', beat: 3.75, velocity: 85 },
+          { instrument: 'sd', beat: 4.0, velocity: 125 },
+          { instrument: 'cb', beat: 4.25, velocity: 100 },
+          { instrument: 'cym', beat: 4.5, velocity: 115 },
+          { instrument: 'ma', beat: 4.75, velocity: 88 }
+        ]
+      }
+    };
+
+    // Instrument to MIDI note mapping (same as GrooveCore)
+    const instrumentToMidiMap = {
+      bd: 36,   sd: 38,   ch: 39,   oh: 46,   cb: 56,   cl: 75,   cym: 57,
+      hc: 42,   mc: 44,   lc: 46,   ma: 70,   lt: 45,   mt: 47,   ht: 50,   
+      rim: 37,  accent: 40, cr: 49
+    };
+
+    function addTestResult(message, type = 'info', details = null) {
+      const timestamp = new Date().toLocaleTimeString();
+      const results = document.getElementById('testResults');
+      const div = document.createElement('div');
+      div.className = `test-result ${type}`;
+      
+      let emoji = '';
+      switch(type) {
+        case 'pass': emoji = '✅'; passedTests++; break;
+        case 'fail': emoji = '❌'; break;
+        case 'warn': emoji = '⚠️'; break;
+        case 'info': emoji = 'ℹ️'; break;
+      }
+      
+      totalTests++;
+      
+      div.innerHTML = `
+        <div>
+          <span class="emoji">${emoji}</span>
+          <strong>${message}</strong>
+          <span class="timestamp">${timestamp}</span>
+        </div>
+        ${details ? `<pre>${details}</pre>` : ''}
+      `;
+      
+      results.appendChild(div);
+      results.scrollTop = results.scrollHeight;
+      
+      updateTestStats();
+      updateProgress();
+    }
+
+    function updateTestStats() {
+      document.getElementById('testsPassed').textContent = `${passedTests}/${totalTests}`;
+    }
+
+    function updateProgress() {
+      const progress = totalTests > 0 ? (passedTests / totalTests) * 100 : 0;
+      document.getElementById('progressFill').style.width = `${progress}%`;
+    }
+
+    function clearAllResults() {
+      document.getElementById('testResults').innerHTML = '';
+      document.getElementById('midiAnalysis').innerHTML = '';
+      document.getElementById('patternData').innerHTML = '';
+      testResults = [];
+      totalTests = 0;
+      passedTests = 0;
+      updateTestStats();
+      updateProgress();
+      updateStatus('exportStatus', 'Ready');
+    }
+
+    function updateStatus(elementId, status, type = 'info') {
+      const element = document.getElementById(elementId);
+      element.innerHTML = status;
+      element.className = type;
+    }
+
+    function checkLibraryStatus() {
+      const status = document.getElementById('libraryStatus');
+      
+      if (typeof MidiWriter !== 'undefined') {
+        status.innerHTML = '<span style="color: #4CAF50">✅ Loaded</span>';
+        addTestResult('MidiWriter library loaded successfully', 'pass');
+        return true;
+      } else {
+        status.innerHTML = '<span style="color: #f44336">❌ Failed</span>';
+        addTestResult('MidiWriter library not available', 'fail');
+        return false;
+      }
+    }
+
+    function generateBasicTestPattern() {
+      const pattern = testPatterns.basic;
+      displayPatternData(pattern);
+      updateStatus('patternStatus', `${pattern.sequence.length} events`, 'pass');
+      addTestResult(`Generated basic test pattern with ${pattern.sequence.length} events`, 'pass');
+      return pattern;
+    }
+
+    function generateAdvancedTestPattern() {
+      const pattern = testPatterns.advanced;
+      displayPatternData(pattern);
+      updateStatus('patternStatus', `${pattern.sequence.length} events`, 'pass');
+      addTestResult(`Generated advanced test pattern with ${pattern.sequence.length} events`, 'pass');
+      return pattern;
+    }
+
+    function displayPatternData(pattern) {
+      const output = document.getElementById('patternData');
+      output.innerHTML = `
+        <div class="test-result pass">✅ Pattern: ${pattern.name}</div>
+        <div class="test-result info">📊 Events: ${pattern.sequence.length}</div>
+        <pre>${JSON.stringify(pattern, null, 2)}</pre>
+      `;
+    }
+
+    function validateMidiMapping() {
+      addTestResult('Validating MIDI instrument mapping...', 'info');
+      
+      let validMappings = 0;
+      let invalidMappings = [];
+      
+      Object.keys(instrumentToMidiMap).forEach(instrument => {
+        const midiNote = instrumentToMidiMap[instrument];
+        if (midiNote >= 1 && midiNote <= 127) {
+          validMappings++;
+        } else {
+          invalidMappings.push(`${instrument}: ${midiNote}`);
+        }
+      });
+      
+      if (invalidMappings.length === 0) {
+        addTestResult(`All ${validMappings} instrument mappings are valid`, 'pass');
+        return true;
+      } else {
+        addTestResult(`Invalid MIDI mappings found`, 'fail', invalidMappings.join('\n'));
+        return false;
+      }
+    }
+
+    function testBasicMidiExport() {
+      if (!checkLibraryStatus()) return;
+      
+      const pattern = generateBasicTestPattern();
+      return performMidiExport(pattern, 'Basic');
+    }
+
+    function testAdvancedMidiExport() {
+      if (!checkLibraryStatus()) return;
+      
+      const pattern = generateAdvancedTestPattern();
+      return performMidiExport(pattern, 'Advanced');
+    }
+
+    function performMidiExport(patternData, testType) {
+      try {
+        addTestResult(`Starting ${testType} MIDI export test...`, 'info');
+        updateStatus('exportStatus', 'Exporting...', 'warn');
+
+        // Create MIDI writer
+        const writer = new MidiWriter.Writer();
+        const track = new MidiWriter.Track();
+
+        // Add metadata
+        track.addEvent(new MidiWriter.MetaEvent({
+          type: 'trackName',
+          text: patternData.name
+        }));
+
+        track.addEvent(new MidiWriter.MetaEvent({
+          type: 'setTempo',
+          tempo: 120
+        }));
+
+        track.addEvent(new MidiWriter.MetaEvent({
+          type: 'timeSignature',
+          numerator: 4,
+          denominator: 4,
+          clocksPerClick: 24,
+          thirtySecondNotesPerBeat: 8
+        }));
+
+        track.addEvent(new MidiWriter.ProgramChangeEvent({
+          instrument: 0,
+          channel: 9
+        }));
+
+        // Sort and add events
+        const sortedSequence = patternData.sequence.sort((a, b) => a.beat - b.beat);
+        let currentTick = 0;
+        const ticksPerBeat = 480;
+        let eventsAdded = 0;
+
+        sortedSequence.forEach((event, index) => {
+          const midiNote = instrumentToMidiMap[event.instrument];
+          if (!midiNote) {
+            addTestResult(`Warning: No MIDI mapping for ${event.instrument}`, 'warn');
+            return;
+          }
+
+          const velocity = Math.min(127, Math.max(1, event.velocity));
+          const eventTick = Math.round((event.beat - 1) * ticksPerBeat);
+          const deltaTime = eventTick - currentTick;
+          
+          const noteEvent = new MidiWriter.NoteEvent({
+            pitch: [midiNote],
+            duration: '16',
+            velocity: velocity,
+            channel: 9,
+            wait: deltaTime > 0 ? deltaTime : 0
+          });
+          
+          track.addEvent(noteEvent);
+          currentTick = eventTick;
+          eventsAdded++;
+        });
+
+        track.addEvent(new MidiWriter.MetaEvent({ type: 'endOfTrack' }));
+        writer.addTrack(track);
+        
+        const midiData = writer.buildFile();
+        
+        // Create download
+        const blob = new Blob([new Uint8Array(midiData)], { type: 'audio/midi' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `groovecore-${testType.toLowerCase()}-test-${Date.now()}.mid`;
+        
+        // Show analysis
+        const analysis = document.getElementById('midiAnalysis');
+        analysis.innerHTML = `
+          <div class="test-result pass">✅ ${testType} MIDI export successful!</div>
+          <div class="test-result info">📁 File size: ${midiData.length} bytes</div>
+          <div class="test-result info">🎵 Events added: ${eventsAdded}/${sortedSequence.length}</div>
+          <div class="test-result info">⏱️ Tempo: 120 BPM</div>
+          <div class="test-result info">🎼 Time signature: 4/4</div>
+          <div class="test-result info">📺 Channel: 10 (GM Percussion)</div>
+          <button onclick="document.querySelector('a[download*=\\"${testType.toLowerCase()}\\"]').click()" class="midi-button">📥 Download MIDI File</button>
+        `;
+        analysis.appendChild(a);
+        
+        addTestResult(`${testType} MIDI export completed successfully`, 'pass', 
+          `File size: ${midiData.length} bytes\nEvents: ${eventsAdded}\nFilename: ${a.download}`);
+        
+        updateStatus('exportStatus', 'Success', 'pass');
+        
+        // Auto-download
+        a.click();
+        
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+        return true;
+
+      } catch (error) {
+        addTestResult(`${testType} MIDI export failed`, 'fail', error.message);
+        updateStatus('exportStatus', 'Failed', 'fail');
+        return false;
+      }
+    }
+
+    function runCompleteValidation() {
+      clearAllResults();
+      addTestResult('🚀 Starting comprehensive MIDI export validation...', 'info');
+      
+      // Test sequence
+      const tests = [
+        { name: 'Library Check', fn: checkLibraryStatus },
+        { name: 'MIDI Mapping', fn: validateMidiMapping },
+        { name: 'Basic Export', fn: testBasicMidiExport },
+        { name: 'Advanced Export', fn: testAdvancedMidiExport }
+      ];
+      
+      let currentTest = 0;
+      
+      function runNextTest() {
+        if (currentTest < tests.length) {
+          const test = tests[currentTest];
+          addTestResult(`Running test: ${test.name}`, 'info');
+          
+          try {
+            const result = test.fn();
+            if (result !== false) {
+              currentTest++;
+              setTimeout(runNextTest, 500);
+            } else {
+              addTestResult(`Validation stopped at: ${test.name}`, 'fail');
+            }
+          } catch (error) {
+            addTestResult(`Test ${test.name} threw error`, 'fail', error.message);
+          }
+        } else {
+          addTestResult('🏁 Complete validation finished!', 'pass');
+          const successRate = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+          addTestResult(`Success rate: ${successRate}% (${passedTests}/${totalTests})`, 
+            successRate >= 75 ? 'pass' : 'warn');
+        }
+      }
+      
+      runNextTest();
+    }
+
+    // Initialize on page load
+    window.onload = function() {
+      checkLibraryStatus();
+      addTestResult('🔄 MIDI Export Validation Suite initialized', 'info');
+      addTestResult('Click "Run Complete Validation" to test all functionality', 'info');
+    };
+  </script>
+</body>
+</html>

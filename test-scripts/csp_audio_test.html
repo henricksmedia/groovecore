@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CSP Audio Test - GrooveCore</title>
+  <!-- Same CSP as main app -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; connect-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:; img-src 'self' data:; media-src 'self'; object-src 'none'; frame-src 'none';">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
+    .test-result { margin: 20px 0; padding: 15px; border-radius: 8px; }
+    .success { background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; }
+    .error { background: rgba(220, 53, 69, 0.2); border: 1px solid #dc3545; }
+    button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <h1>CSP Audio Context Test</h1>
+  <p>This test verifies that the updated CSP allows Tone.js to work properly.</p>
+  
+  <button onclick="testAudioContext()">Test Audio Context</button>
+  <button onclick="testToneJS()">Test Tone.js Loading</button>
+  
+  <div id="audio-result" class="test-result"></div>
+  <div id="tone-result" class="test-result"></div>
+
+  <!-- Load Tone.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+  
+  <script>
+    function testAudioContext() {
+      const result = document.getElementById('audio-result');
+      
+      try {
+        // Test basic AudioContext creation
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        result.innerHTML = `
+          <h3>✅ Audio Context Test - PASSED</h3>
+          <p>AudioContext created successfully</p>
+          <p>Sample Rate: ${audioContext.sampleRate} Hz</p>
+          <p>State: ${audioContext.state}</p>
+        `;
+        result.className = 'test-result success';
+        
+        // Clean up
+        audioContext.close();
+        
+      } catch (error) {
+        result.innerHTML = `
+          <h3>❌ Audio Context Test - FAILED</h3>
+          <p>Error: ${error.message}</p>
+        `;
+        result.className = 'test-result error';
+      }
+    }
+
+    function testToneJS() {
+      const result = document.getElementById('tone-result');
+      
+      try {
+        // Test if Tone.js loaded and can create basic components
+        if (typeof Tone === 'undefined') {
+          throw new Error('Tone.js not loaded');
+        }
+        
+        // Test creating a simple oscillator (this will test web workers internally)
+        const osc = new Tone.Oscillator(440, "sine");
+        const vol = new Tone.Volume(-20);
+        
+        // Test if we can connect components
+        osc.connect(vol);
+        vol.toDestination();
+        
+        // Test Tone.js context
+        const context = Tone.getContext();
+        
+        result.innerHTML = `
+          <h3>✅ Tone.js Test - PASSED</h3>
+          <p>Tone.js loaded successfully</p>
+          <p>Version: ${Tone.version || 'Unknown'}</p>
+          <p>Context State: ${context.state}</p>
+          <p>Sample Rate: ${context.sampleRate} Hz</p>
+          <p>Oscillator created and connected successfully</p>
+        `;
+        result.className = 'test-result success';
+        
+        // Clean up
+        osc.dispose();
+        vol.dispose();
+        
+      } catch (error) {
+        result.innerHTML = `
+          <h3>❌ Tone.js Test - FAILED</h3>
+          <p>Error: ${error.message}</p>
+          <p>Stack: <pre>${error.stack}</pre></p>
+        `;
+        result.className = 'test-result error';
+      }
+    }
+
+    // Auto-run tests when page loads
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        testAudioContext();
+        testToneJS();
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

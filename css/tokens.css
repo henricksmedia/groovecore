@@ -1,0 +1,72 @@
+/* =============================================================================
+   GrooveCore Design Tokens (WS-H)
+   The single :root token layer. Loaded AFTER styles.css; defines variables only,
+   zero visual overrides. Every gc-* module styles against these names.
+   ============================================================================= */
+
+:root {
+  /* ---- Brand orange family ---------------------------------------------- */
+  --gc-orange:        #ff4500;
+  --gc-orange-light:  #ff6a2b;
+  --gc-orange-lighter:#ff8c55;
+  --gc-orange-dim:    #b33000;
+  --gc-orange-glow:   rgba(255, 69, 0, 0.5);
+  --gc-orange-tint:   rgba(255, 69, 0, 0.12);
+
+  /* ---- Surfaces (dark hardware shell) ----------------------------------- */
+  --gc-bg:            #0a0a0a;
+  --gc-surface-1:     #141414;
+  --gc-surface-2:     #1e1e1e;
+  --gc-surface-3:     #2a2a2a;
+  --gc-surface-4:     #383838;
+  --gc-border:        rgba(255, 255, 255, 0.10);
+  --gc-border-strong: rgba(255, 255, 255, 0.22);
+
+  /* ---- Text ------------------------------------------------------------- */
+  --gc-text:          #f5f5f5;
+  --gc-text-dim:      #b8b8b8;
+  --gc-text-faint:    #7a7a7a;
+  --gc-text-on-accent:#111111;
+
+  /* ---- Status ----------------------------------------------------------- */
+  --gc-danger:        #d92b2b;
+  --gc-danger-dim:    #8f1d1d;
+  --gc-success:       #2e9e5b;
+  --gc-info:          #3d7dd6;
+
+  /* ---- 808 semantic step-bank colors (red / orange / yellow / cream) ---- */
+  --gc-808-red:       #e5352b;
+  --gc-808-orange:    #f5842c;
+  --gc-808-yellow:    #f7cb46;
+  --gc-808-cream:     #f2ecd7;
+
+  /* ---- Spacing scale ----------------------------------------------------- */
+  --gc-space-1: 4px;
+  --gc-space-2: 8px;
+  --gc-space-3: 12px;
+  --gc-space-4: 16px;
+  --gc-space-5: 24px;
+  --gc-space-6: 32px;
+
+  /* ---- Radii ------------------------------------------------------------ */
+  --gc-radius-sm: 4px;
+  --gc-radius-md: 6px;
+  --gc-radius-lg: 10px;
+  --gc-radius-pill: 999px;
+
+  /* ---- Z scale (breaks the legacy three-way z-index:1000 tie) ----------- */
+  --z-dock:  100;   /* sticky bottom deck + sticky header band              */
+  --z-modal: 1000;  /* modals, popovers, browser panel                      */
+  --z-toast: 1100;  /* toasts always win                                    */
+
+  /* ---- Motion durations -------------------------------------------------- */
+  --gc-dur-fast:   120ms;
+  --gc-dur-med:    200ms;
+  --gc-dur-slow:   350ms;
+  --gc-ease:       cubic-bezier(0.25, 0.6, 0.3, 1);
+
+  /* ---- Shadows ----------------------------------------------------------- */
+  --gc-shadow-1: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --gc-shadow-2: 0 6px 24px rgba(0, 0, 0, 0.6);
+  --gc-focus-ring: 0 0 0 2px var(--gc-orange);
+}

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIDI Export Validation - GrooveCore</title>
+  <style>
+    body {
+      font-family: 'Consolas', 'Monaco', monospace;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+      line-height: 1.6;
+    }
+    .test-section {
+      background: #2a2a2a;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+    .test-result {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .pass { background: #1b4d3e; border-left: 4px solid #4CAF50; }
+    .fail { background: #4d1b1b; border-left: 4px solid #f44336; }
+    .warning { background: #4d4d1b; border-left: 4px solid #ff9800; }
+    .info { background: #1b2d4d; border-left: 4px solid #2196F3; }
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+      font-family: inherit;
+    }
+    button:hover { background: #45a049; }
+    .test-button { background: #2196F3; }
+    .test-button:hover { background: #1976D2; }
+    pre {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+      border: 1px solid #333;
+    }
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 2px solid #444;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎹 MIDI Export Validation</h1>
+    <p>Testing MIDI mapping accuracy in export process</p>
+  </div>
+
+  <div class="test-section">
+    <h2>🔧 Test Controls</h2>
+    <button class="test-button" onclick="runMappingValidation()">Run Mapping Validation</button>
+    <button class="test-button" onclick="testExportProcess()">Test Export Process</button>
+    <button class="test-button" onclick="validateAllInstruments()">Validate All Instruments</button>
+    <button onclick="clearResults()">Clear Results</button>
+  </div>
+
+  <div class="test-section">
+    <h2>📊 Test Results</h2>
+    <div id="results"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>🎼 MIDI Data Preview</h2>
+    <pre id="midiPreview"></pre>
+  </div>
+
+  <!-- Load required scripts -->
+  <script src="midi-mapping.js"></script>
+  
+  <script>
+    // Test results container
+    const resultsDiv = document.getElementById('results');
+    const midiPreviewDiv = document.getElementById('midiPreview');
+
+    // Expected mappings from master reference
+    const EXPECTED_MAPPINGS = {
+      bd: 36, sd: 38, rim: 37, hc: 42, mc: 44, lc: 46, oh: 46,
+      lt: 45, mt: 47, ht: 50, cr: 49, cym: 57, ch: 39, cb: 56,
+      cl: 75, ma: 70, accent: 40
+    };
+
+    function addResult(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `test-result ${type}`;
+      div.innerHTML = message;
+      resultsDiv.appendChild(div);
+    }
+
+    function clearResults() {
+      resultsDiv.innerHTML = '';
+      midiPreviewDiv.textContent = '';
+    }
+
+    function runMappingValidation() {
+      addResult('🧪 Starting MIDI Mapping Validation...', 'info');
+      
+      // Test 1: Master mapping availability
+      if (window.GrooveCoreMIDI && window.GrooveCoreMIDI.GROOVECORE_MIDI_MAPPING) {
+        addResult('✅ Master MIDI mapping loaded successfully', 'pass');
+        
+        const actualMapping = window.GrooveCoreMIDI.GROOVECORE_MIDI_MAPPING;
+        addResult('📋 Loaded mapping: ' + JSON.stringify(actualMapping, null, 2).substring(0, 200) + '...', 'info');
+        
+        // Validate each mapping
+        let errors = 0;
+        Object.entries(EXPECTED_MAPPINGS).forEach(([instrument, expectedNote]) => {
+          if (actualMapping[instrument] === expectedNote) {
+            addResult(`✅ ${instrument.toUpperCase()}: ${actualMapping[instrument]} (correct)`, 'pass');
+          } else {
+            addResult(`❌ ${instrument.toUpperCase()}: got ${actualMapping[instrument]}, expected ${expectedNote}`, 'fail');
+            errors++;
+          }
+        });
+        
+        if (errors === 0) {
+          addResult('🎯 ALL MAPPINGS CORRECT!', 'pass');
+        } else {
+          addResult(`❌ Found ${errors} mapping errors`, 'fail');
+        }
+        
+      } else {
+        addResult('❌ Master MIDI mapping NOT loaded', 'fail');
+      }
+    }
+
+    function testExportProcess() {
+      addResult('🔄 Testing MIDI export process...', 'info');
+      
+      // Create a test pattern with all instruments
+      const testPattern = {};
+      Object.keys(EXPECTED_MAPPINGS).forEach(instrument => {
+        testPattern[instrument] = true; // Activate all instruments
+      });
+      
+      addResult('🎼 Test pattern created with all instruments: ' + Object.keys(testPattern).join(', '), 'info');
+      
+      // Simulate the export mapping process
+      if (window.GrooveCoreMIDI) {
+        const mapping = window.GrooveCoreMIDI.GROOVECORE_MIDI_MAPPING;
+        const exportData = [];
+        
+        Object.entries(testPattern).forEach(([instrument, active]) => {
+          if (active && mapping[instrument]) {
+            exportData.push({
+              instrument: instrument,
+              midiNote: mapping[instrument],
+              gmName: getGMName(mapping[instrument])
+            });
+          }
+        });
+        
+        addResult(`✅ Export would include ${exportData.length} instruments`, 'pass');
+        
+        // Display the export data
+        midiPreviewDiv.textContent = JSON.stringify(exportData, null, 2);
+        
+        // Validate critical mappings
+        const criticalTests = [
+          { name: 'Clap (CH)', instrument: 'ch', expected: 39 },
+          { name: 'Hi-Hat Closed (HC)', instrument: 'hc', expected: 42 },
+          { name: 'Bass Drum (BD)', instrument: 'bd', expected: 36 }
+        ];
+        
+        criticalTests.forEach(test => {
+          const actualNote = mapping[test.instrument];
+          if (actualNote === test.expected) {
+            addResult(`✅ Critical mapping ${test.name}: ${actualNote} ✓`, 'pass');
+          } else {
+            addResult(`❌ Critical mapping ${test.name}: ${actualNote}, expected ${test.expected}`, 'fail');
+          }
+        });
+        
+      } else {
+        addResult('❌ Cannot test export process - mapping not loaded', 'fail');
+      }
+    }
+
+    function validateAllInstruments() {
+      addResult('🎯 Validating all instrument mappings...', 'info');
+      
+      if (!window.GrooveCoreMIDI) {
+        addResult('❌ Master mapping not available', 'fail');
+        return;
+      }
+      
+      const mapping = window.GrooveCoreMIDI.GROOVECORE_MIDI_MAPPING;
+      const allInstruments = Object.keys(EXPECTED_MAPPINGS);
+      
+      addResult(`📊 Testing ${allInstruments.length} instruments...`, 'info');
+      
+      let passed = 0;
+      let failed = 0;
+      
+      allInstruments.forEach(instrument => {
+        if (mapping[instrument]) {
+          const note = mapping[instrument];
+          const gmName = getGMName(note);
+          addResult(`✅ ${instrument.toUpperCase()}: MIDI ${note} → ${gmName}`, 'pass');
+          passed++;
+        } else {
+          addResult(`❌ ${instrument.toUpperCase()}: NOT MAPPED`, 'fail');
+          failed++;
+        }
+      });
+      
+      if (failed === 0) {
+        addResult(`🎉 SUCCESS: All ${passed} instruments properly mapped!`, 'pass');
+      } else {
+        addResult(`⚠️ ISSUES: ${passed} passed, ${failed} failed`, 'warning');
+      }
+    }
+
+    function getGMName(midiNote) {
+      const gmNames = {
+        35: 'Acoustic Bass Drum', 36: 'Bass Drum 1', 37: 'Side Stick',
+        38: 'Acoustic Snare', 39: 'Hand Clap', 40: 'Electric Snare',
+        42: 'Closed Hi-Hat', 44: 'Pedal Hi-Hat', 45: 'Low Tom',
+        46: 'Open Hi-Hat', 47: 'Low-Mid Tom', 49: 'Crash Cymbal 1',
+        50: 'High Tom', 56: 'Cowbell', 57: 'Crash Cymbal 2',
+        70: 'Maracas', 75: 'Claves'
+      };
+      return gmNames[midiNote] || `Unknown (${midiNote})`;
+    }
+
+    // Auto-run basic validation on load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        addResult('🚀 Page loaded - running initial validation...', 'info');
+        runMappingValidation();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

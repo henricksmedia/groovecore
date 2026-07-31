@@ -1,0 +1,255 @@
+/* =============================================================================
+   GrooveCore visual polish overrides (WS-H)
+   Loaded after styles.css + tokens.css. NEVER edits styles.css — everything
+   here is an override. Requires css/tokens.css.
+   ============================================================================= */
+
+/* ---------------------------------------------------------------------------
+   1. 808 step-bank colors — steps 1-4 / 5-8 / 9-12 / 13-16 get the classic
+      red / orange / yellow / cream bottom strips, active or not.
+   --------------------------------------------------------------------------- */
+.step-button[data-step="1"],
+.step-button[data-step="2"],
+.step-button[data-step="3"],
+.step-button[data-step="4"] {
+  border-bottom: 3px solid var(--gc-808-red) !important;
+}
+
+.step-button[data-step="5"],
+.step-button[data-step="6"],
+.step-button[data-step="7"],
+.step-button[data-step="8"] {
+  border-bottom: 3px solid var(--gc-808-orange) !important;
+}
+
+.step-button[data-step="9"],
+.step-button[data-step="10"],
+.step-button[data-step="11"],
+.step-button[data-step="12"] {
+  border-bottom: 3px solid var(--gc-808-yellow) !important;
+}
+
+.step-button[data-step="13"],
+.step-button[data-step="14"],
+.step-button[data-step="15"],
+.step-button[data-step="16"] {
+  border-bottom: 3px solid var(--gc-808-cream) !important;
+}
+
+/* Disabled steps (beyond pattern length) mute the strip */
+.step-button.disabled[data-step] {
+  border-bottom-color: #333 !important;
+}
+
+/* Visible beat gap every 4 columns (steps AND the number labels above them,
+   so the two grids stay visually aligned). */
+.step-button[data-step="5"],
+.step-button[data-step="9"],
+.step-button[data-step="13"],
+.pattern-label[data-column="5"],
+.pattern-label[data-column="9"],
+.pattern-label[data-column="13"] {
+  margin-left: 5px;
+}
+
+/* ---------------------------------------------------------------------------
+   2. Pulse keyframe collision fix.
+      styles.css defines @keyframes pulse twice (opacity-only at ~783,
+      scale+opacity for the loader at ~1368). Last one wins, so playing steps
+      SCALE instead of glowing. Give the playhead its own keyframes.
+   --------------------------------------------------------------------------- */
+@keyframes gc-step-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.7; }
+}
+
+.step-button.blink {
+  animation-name: gc-step-pulse !important;
+}
+
+/* ---------------------------------------------------------------------------
+   3. Remap Bootstrap/Tailwind-colored action buttons to the token family.
+      (!important because the Tailwind Play runtime injects its stylesheet at
+      runtime, after these links.)
+   --------------------------------------------------------------------------- */
+#save {
+  background: var(--gc-orange) !important;
+  color: var(--gc-text) !important;
+}
+#save:hover { background: var(--gc-orange-light) !important; }
+
+#load,
+#exportMidi {
+  background: var(--gc-surface-3) !important;
+  border: 1px solid var(--gc-border-strong) !important;
+  color: var(--gc-text) !important;
+}
+#load:hover,
+#exportMidi:hover {
+  background: var(--gc-surface-4) !important;
+  border-color: var(--gc-orange) !important;
+}
+
+#reset {
+  background: var(--gc-danger-dim) !important;
+  border: 1px solid var(--gc-danger) !important;
+  color: var(--gc-text) !important;
+}
+#reset:hover { background: var(--gc-danger) !important; }
+
+/* Modal action buttons (blue / green / purple Tailwind utility soup) */
+#instrumentModal .bg-blue-500,
+#instrumentModal .bg-green-500,
+#instrumentModal .bg-purple-500,
+#instrumentModal .bg-blue-600,
+#instrumentModal .bg-green-600,
+#instrumentModal .bg-purple-600 {
+  background: var(--gc-surface-3) !important;
+  border: 1px solid var(--gc-border-strong) !important;
+  color: var(--gc-text) !important;
+}
+#instrumentModal .bg-blue-500:hover,
+#instrumentModal .bg-green-500:hover,
+#instrumentModal .bg-purple-500:hover,
+#instrumentModal .bg-blue-600:hover,
+#instrumentModal .bg-green-600:hover,
+#instrumentModal .bg-purple-600:hover {
+  border-color: var(--gc-orange) !important;
+  background: var(--gc-surface-4) !important;
+}
+
+#instrumentModal .bg-orange-500 {
+  background: var(--gc-orange) !important;
+}
+#instrumentModal .bg-orange-500:hover {
+  background: var(--gc-orange-light) !important;
+}
+
+/* Style-preset selects follow the tokens too (visible only until the preset
+   browser hides them). */
+.style-preset-select {
+  background: var(--gc-surface-2) !important;
+  border-color: var(--gc-border-strong) !important;
+}
+
+/* ---------------------------------------------------------------------------
+   4. Break the three-way z-index 1000 tie
+      (.app-header vs .loader-wrapper vs .modal all sit at 1000 in styles.css).
+   --------------------------------------------------------------------------- */
+.app-header {
+  z-index: calc(var(--z-dock) + 10) !important;   /* 110: above the dock…    */
+}
+.sticky-bottom-section {
+  z-index: var(--z-dock) !important;              /* 100                     */
+}
+.modal {
+  z-index: var(--z-modal) !important;             /* 1000: above the chrome  */
+}
+.loader-wrapper {
+  z-index: calc(var(--z-modal) + 500) !important; /* 1500: boot splash wins  */
+}
+
+/* ---------------------------------------------------------------------------
+   5. Future rows: CP (clap) and AC (accent). Harmless until the integration
+      workstream adds the DOM — these selectors simply match nothing today.
+   --------------------------------------------------------------------------- */
+.instrument-row[data-instrument="cp"] .step-button.active {
+  background: linear-gradient(135deg, #ff7043, #f4511e);
+  border-color: #ff7043;
+  box-shadow: 0 0 10px rgba(255, 112, 67, 0.5);
+}
+
+/* Accent row: thin flag cells, no per-channel level/knob area */
+.instrument-row[data-instrument="accent"] .step-button {
+  height: 20px !important;
+  min-height: 20px !important;
+  /* Hide the step number but KEEP its intrinsic width — font-size:0 collapsed
+     the row's max-content width so the accent columns no longer lined up with
+     the other rows on scrollable (max-lg) layouts. (WS-J integration fix) */
+  color: transparent !important;
+  text-shadow: none !important;
+}
+.instrument-row[data-instrument="accent"] .instrument-controls,
+.instrument-row[data-instrument="accent"] .expand-arrow {
+  display: none !important;
+}
+.instrument-row[data-instrument="accent"] .step-button.active {
+  background: linear-gradient(135deg, var(--gc-orange), var(--gc-orange-dim));
+  border-color: var(--gc-orange);
+  box-shadow: 0 0 8px var(--gc-orange-glow);
+}
+
+/* ---------------------------------------------------------------------------
+   6. Live-performance affordances (record / MIDI-in buttons, pad flash).
+      DOM arrives with WS-D/WS-J; selectors are inert until then.
+   --------------------------------------------------------------------------- */
+#recordBtn.armed {
+  background: var(--gc-danger-dim) !important;
+  border-color: var(--gc-danger) !important;
+  color: var(--gc-text) !important;
+}
+
+#recordBtn.recording {
+  background: var(--gc-danger) !important;
+  border-color: var(--gc-danger) !important;
+  animation: gc-step-pulse 0.9s infinite;
+}
+
+#midiInBtn.active {
+  background: var(--gc-orange) !important;
+  border-color: var(--gc-orange-light) !important;
+  color: var(--gc-text) !important;
+  box-shadow: 0 0 8px var(--gc-orange-glow);
+}
+
+#midiInBtn.error {
+  background: var(--gc-danger-dim) !important;
+  border-color: var(--gc-danger) !important;
+}
+
+/* Row-label flash when a pad / MIDI note triggers that voice */
+@keyframes gc-pad-flash {
+  0%   { background-color: var(--gc-orange-tint); box-shadow: inset 0 0 0 1px var(--gc-orange); }
+  100% { background-color: transparent;           box-shadow: none; }
+}
+
+.pad-flash {
+  animation: gc-pad-flash 220ms var(--gc-ease) 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pad-flash { animation: none; }
+  #recordBtn.recording { animation: none; }
+}
+
+/* Instrument-row badge when modal pattern controls are non-neutral */
+.instrument-name {
+  position: relative;
+}
+
+.pattern-fx-badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 4px;
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--gc-808-yellow, #f5d76e);
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  pointer-events: none;
+}
+
+.pattern-fx-badge[hidden] {
+  display: none !important;
+}
+
+/* Dead modal knobs under GrooveAudio */
+#instrumentModal .knob.knob-disabled,
+#instrumentModal .knob[aria-disabled="true"] {
+  opacity: 0.35;
+  pointer-events: none;
+  filter: grayscale(0.4);
+}

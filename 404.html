@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>404 &mdash; Pattern Not Found &middot; GrooveCore</title>
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: 'Roboto', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .panel {
+      max-width: 540px;
+      width: 100%;
+      background: #141414;
+      border: 1px solid #2a2a2a;
+      border-radius: 14px;
+      padding: 48px 32px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    }
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+    .step {
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
+      background: #1e1e1e;
+      border: 1px solid #333;
+    }
+    .step.lit {
+      background: #ff6b1a;
+      border-color: #ff8c42;
+      box-shadow: 0 0 12px rgba(255, 107, 26, 0.55);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    .step.lit:nth-child(2) { animation-delay: 0.15s; }
+    .step.lit:nth-child(5) { animation-delay: 0.3s; }
+    .step.lit:nth-child(7) { animation-delay: 0.45s; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .step.lit { animation: none; }
+    }
+    h1 {
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: #ff6b1a;
+      margin-bottom: 8px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: #e0e0e0;
+      margin-bottom: 16px;
+    }
+    p {
+      color: #888;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    a.home {
+      display: inline-block;
+      background: #ff6b1a;
+      color: #0a0a0a;
+      font-weight: 700;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 14px;
+      padding: 14px 36px;
+      border-radius: 8px;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    a.home:hover, a.home:focus-visible {
+      background: #ff8c42;
+      transform: translateY(-1px);
+      outline: none;
+    }
+    .brand {
+      margin-top: 32px;
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #555;
+    }
+    .brand strong { color: #ff6b1a; font-weight: 900; }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <div class="steps" aria-hidden="true">
+      <div class="step lit"></div>
+      <div class="step lit"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+      <div class="step lit"></div>
+      <div class="step"></div>
+      <div class="step lit"></div>
+      <div class="step"></div>
+    </div>
+    <h1>404</h1>
+    <h2>Pattern Not Found</h2>
+    <p>This step never got programmed. The sequence you were looking for doesn't exist here &mdash; head back to the machine and lay down a new one.</p>
+    <a class="home" href="/">Back to the 808</a>
+    <div class="brand"><strong>Groove</strong>Core</div>
+  </main>
+</body>
+</html>

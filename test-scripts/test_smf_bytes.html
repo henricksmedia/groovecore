@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrooveCore — SMF Byte-Level Regression Test</title>
+<style>
+  body { background:#0a0a0a; color:#e8e0d0; font-family:'Segoe UI',Roboto,Arial,sans-serif; margin:0; padding:24px; }
+  h1 { color:#ff6600; font-size:20px; letter-spacing:1px; }
+  .sub { color:#888; font-size:13px; margin-bottom:20px; }
+  #banner { padding:14px 18px; border-radius:6px; font-weight:bold; font-size:16px; margin-bottom:18px; border:1px solid #333; }
+  #banner.pass { background:#0d2b12; color:#4caf50; border-color:#2e7d32; }
+  #banner.fail { background:#2b0d0d; color:#ef5350; border-color:#c62828; }
+  #banner.warn { background:#2b220d; color:#ffb300; border-color:#9a7d0a; }
+  .row { display:flex; gap:10px; padding:8px 12px; border-bottom:1px solid #1e1e1e; font-size:14px; align-items:baseline; }
+  .row .dot { width:12px; height:12px; border-radius:50%; flex:0 0 12px; align-self:center; }
+  .row.pass .dot { background:#4caf50; } .row.fail .dot { background:#ef5350; } .row.skip .dot { background:#9a7d0a; }
+  .row .name { flex:0 0 340px; }
+  .row .detail { color:#999; font-size:12px; font-family:Consolas,monospace; word-break:break-all; }
+  .row.fail .detail { color:#ef9a9a; }
+  pre { background:#111; border:1px solid #222; padding:10px; font-size:12px; color:#aaa; overflow-x:auto; }
+</style>
+</head>
+<body>
+<h1>SMF BYTE-LEVEL REGRESSION — test_smf_bytes.html</h1>
+<div class="sub">Verifies the MIDI export against the sacred contract: 480 PPQ, exact ticks, verbatim velocities,
+channel 10, chords share a tick, and byte-identical re-exports. Serve from the repo root
+(<code>python -m http.server 8083</code>) and open <code>/test-scripts/test_smf_bytes.html</code>.</div>
+<div id="banner" class="warn">Running…</div>
+<div id="results"></div>
+<pre id="log"></pre>
+
+<script src="../midi-mapping.js"></script>
+<script type="module">
+const results = document.getElementById('results');
+const banner  = document.getElementById('banner');
+const logEl   = document.getElementById('log');
+const rows = [];
+function report(name, ok, detail) {
+  rows.push({ name, ok, detail });
+  const div = document.createElement('div');
+  div.className = 'row ' + (ok === null ? 'skip' : ok ? 'pass' : 'fail');
+  div.innerHTML = '<span class="dot"></span><span class="name"></span><span class="detail"></span>';
+  div.children[1].textContent = name;
+  div.children[2].textContent = detail || '';
+  results.appendChild(div);
+}
+function finish() {
+  const fails = rows.filter(r => r.ok === false).length;
+  const skips = rows.filter(r => r.ok === null).length;
+  if (fails) { banner.className = 'fail'; banner.textContent = 'FAIL — ' + fails + ' assertion(s) failed'; }
+  else if (skips === rows.length) { banner.className = 'warn'; banner.textContent = 'SKIPPED — export module not loaded'; }
+  else { banner.className = 'pass'; banner.textContent = 'PASS — ' + rows.filter(r => r.ok).length + ' assertions green'; }
+}
+function log(m) { logEl.textContent += m + '\n'; }
+
+// ---------------------------------------------------------------------------
+// Known test pattern (data model v2, docs/UPGRADE-PLAN.md §4)
+//   step 0  : chord bd(127 accent tier) + sd(100 normal) + cp(100), accent flag set on step 8
+//   step 4  : sd ghost (45)
+//   step 8  : bd accent (127)
+//   step 12 : ch normal (100) with ratchet ×3
+// ---------------------------------------------------------------------------
+const BPM = 128, PPQ = 480, STEP_TICKS = PPQ / 4; // 120 ticks per 16th
+function buildTestPattern() {
+  const cells = Array.from({ length: 16 }, () => ({}));
+  cells[0]  = { bd: 127, sd: 100, cp: 100 };
+  cells[4]  = { sd: 45 };
+  cells[8]  = { bd: 127, accent: true };
+  cells[12] = { ch: 100 };
+  return { part1: cells, part2: [], length1: 16, length2: 0, sfx1: { '12:ch': { r: 3 } } };
+}
+const MAP = (window.GrooveCoreMIDI && window.GrooveCoreMIDI.GROOVECORE_MIDI_MAPPING) ||
+            { bd: 36, sd: 38, cp: 39, ch: 42 };
+const N = { bd: MAP.bd, sd: MAP.sd, cp: MAP.cp, ch: MAP.ch };
+
+// ---------------------------------------------------------------------------
+// Inline SMF parser (header + tracks, running status, meta tempo, notes)
+// ---------------------------------------------------------------------------
+function parseSMF(bytes) {
+  const b = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  let p = 0;
+  const u32 = () => (b[p++] << 24 | b[p++] << 16 | b[p++] << 8 | b[p++]) >>> 0;
+  const u16 = () => (b[p++] << 8 | b[p++]);
+  const str4 = () => String.fromCharCode(b[p++], b[p++], b[p++], b[p++]);
+  const varlen = () => { let v = 0, c; do { c = b[p++]; v = (v << 7) | (c & 0x7f); } while (c & 0x80); return v; };
+  if (str4() !== 'MThd') throw new Error('missing MThd');
+  const hdrLen = u32();
+  const format = u16(), ntrks = u16(), division = u16();
+  p += hdrLen - 6;
+  const tempos = [], notes = [];
+  for (let t = 0; t < ntrks; t++) {
+    if (str4() !== 'MTrk') throw new Error('missing MTrk for track ' + t);
+    const len = u32(), end = p + len;
+    let tick = 0, running = 0;
+    while (p < end) {
+      tick += varlen();
+      let status = b[p];
+      if (status & 0x80) { p++; running = status; } else { status = running; }
+      if (status === 0xff) {                       // meta
+        const type = b[p++], mlen = varlen(), dp = p; p += mlen;
+        if (type === 0x51) tempos.push({ tick, usPerQuarter: (b[dp] << 16) | (b[dp + 1] << 8) | b[dp + 2] });
+      } else if (status === 0xf0 || status === 0xf7) { p += varlen(); }
+      else {
+        const hi = status & 0xf0, ch = status & 0x0f;
+        if (hi === 0x90 || hi === 0x80) {
+          const note = b[p++], vel = b[p++];
+          notes.push({ tick, ch, note, vel, on: hi === 0x90 && vel > 0, track: t });
+        } else if (hi === 0xc0 || hi === 0xd0) { p += 1; }
+        else { p += 2; }                            // aftertouch / CC / pitch bend
+      }
+    }
+    p = end;
+  }
+  return { format, ntrks, division, tempos, notes };
+}
+
+// ---------------------------------------------------------------------------
+// Locate the new export API (js/io/export-midi.js — WS-B; may not exist yet)
+// ---------------------------------------------------------------------------
+async function coerceBytes(r) {
+  r = await r;
+  if (r instanceof Uint8Array) return r;
+  if (r instanceof ArrayBuffer) return new Uint8Array(r);
+  if (r && typeof r.arrayBuffer === 'function') return new Uint8Array(await r.arrayBuffer()); // Blob
+  if (Array.isArray(r) && r.every(x => typeof x === 'number')) return new Uint8Array(r);
+  if (r && r.bytes) return coerceBytes(r.bytes);
+  return null;
+}
+async function findExporter(pattern, opts) {
+  let mod = null;
+  try { mod = await import('../js/io/export-midi.js'); }
+  catch (e) { log('import js/io/export-midi.js failed: ' + e.message); }
+  const pools = [];
+  if (mod) pools.push(mod);
+  if (window.GCExport) pools.push(window.GCExport);
+  if (typeof window.exportPatternToMidiEnhanced === 'function')
+    pools.push({ exportPatternToMidiEnhanced: window.exportPatternToMidiEnhanced });
+  const preferred = ['exportPatternToBytes', 'buildMidiBytes', 'midiBytes', 'patternToBytes', 'toBytes',
+                     'renderMidi', 'exportMidiBytes', 'buildSMF', 'exportPatternToMidiEnhanced', 'default'];
+  for (const pool of pools) {
+    const names = [...preferred.filter(n => typeof pool[n] === 'function'),
+                   ...Object.keys(pool).filter(n => typeof pool[n] === 'function' && !preferred.includes(n))];
+    for (const name of names) {
+      try {
+        const bytes = await coerceBytes(pool[name](pattern, opts));
+        if (bytes && bytes.length > 14 && bytes[0] === 0x4d && bytes[1] === 0x54) { // 'MT'
+          log('using exporter: ' + name);
+          return async (pat, o) => coerceBytes(pool[name](pat, o));
+        }
+      } catch (e) { log('candidate ' + name + ' threw: ' + e.message); }
+    }
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Assertions
+// ---------------------------------------------------------------------------
+(async () => {
+  const pattern = buildTestPattern();
+  const opts = { bpm: BPM, tempo: BPM, ppq: PPQ, deterministic: true, seed: 42,
+                 download: false, returnBytes: true };
+  const exporter = await findExporter(buildTestPattern(), opts);
+  if (!exporter) {
+    report('export module (js/io/export-midi.js)', null,
+      'export module not loaded — no byte-returning MIDI export API found yet. ' +
+      'This is expected until workstream B lands. No assertions were run.');
+    finish();
+    return;
+  }
+
+  const bytes1 = await exporter(pattern, opts);
+  const bytes2 = await exporter(buildTestPattern(), opts);
+  log('export size: ' + bytes1.length + ' bytes');
+
+  let smf;
+  try { smf = parseSMF(bytes1); }
+  catch (e) { report('SMF parses', false, e.message); finish(); return; }
+  report('SMF parses', true, 'format ' + smf.format + ', ' + smf.ntrks + ' track(s), ' + smf.notes.length + ' note events');
+
+  // 1. Division
+  report('header division is 480 PPQ', smf.division === PPQ, 'division = ' + smf.division);
+
+  // 2. Tempo meta matches app tempo
+  const expectedUsPerQ = Math.round(60000000 / BPM);
+  const t0 = smf.tempos[0];
+  report('tempo meta present and matches ' + BPM + ' BPM',
+    !!t0 && Math.abs(t0.usPerQuarter - expectedUsPerQ) <= 1,
+    t0 ? ('usPerQuarter = ' + t0.usPerQuarter + ' (' + (60000000 / t0.usPerQuarter).toFixed(2) + ' BPM), expected ' + expectedUsPerQ)
+       : 'no 0x51 tempo meta found');
+
+  // 3. Channel nibble 9 on every note event
+  const badCh = smf.notes.filter(n => n.ch !== 9);
+  report('all note events on channel 10 (nibble 9)', badCh.length === 0,
+    badCh.length ? badCh.length + ' events on other channels, e.g. ch ' + badCh[0].ch : smf.notes.length + ' events checked');
+
+  const ons = smf.notes.filter(n => n.on);
+  const onsFor = (note) => ons.filter(n => n.note === note);
+  const has = (note, tick, vel) => ons.some(n => n.note === note && n.tick === tick && (vel === undefined || n.vel === vel));
+
+  // 4. Chord on step 0 — identical tick, verbatim velocities
+  report('chord: bd(' + N.bd + ') at tick 0, velocity 127', has(N.bd, 0, 127), fmt(onsFor(N.bd)));
+  report('chord: sd(' + N.sd + ') at tick 0, velocity 100', has(N.sd, 0, 100), fmt(onsFor(N.sd)));
+  report('chord: cp(' + N.cp + ') at tick 0, velocity 100', has(N.cp, 0, 100), fmt(onsFor(N.cp)));
+  const chordTicks = [N.bd, N.sd, N.cp].map(n => (onsFor(n).find(x => x.tick < STEP_TICKS) || {}).tick);
+  report('chord notes share the exact same tick', chordTicks.every(t => t === 0), 'ticks: ' + chordTicks.join(', '));
+
+  // 5. Velocity tiers verbatim
+  report('ghost: sd at tick 480 (step 4), velocity 45 verbatim', has(N.sd, 4 * STEP_TICKS, 45), fmt(onsFor(N.sd)));
+  report('accent: bd at tick 960 (step 8), velocity 127 verbatim', has(N.bd, 8 * STEP_TICKS, 127), fmt(onsFor(N.bd)));
+
+  // 6. Ratchet ×3 hat on step 12 — three evenly spaced sub-hits inside one 16th
+  const hat = onsFor(N.ch).map(n => n.tick).sort((a, b) => a - b);
+  const base = 12 * STEP_TICKS, sub = STEP_TICKS / 3; // 1440, 1480, 1520
+  report('ratchet: exactly 3 ch(' + N.ch + ') note-ons', hat.length === 3, 'ticks: ' + hat.join(', '));
+  report('ratchet: sub-hits at ticks 1440 / 1480 / 1520 (evenly spaced in the 16th)',
+    hat.length === 3 && hat[0] === base && hat[1] === base + sub && hat[2] === base + 2 * sub,
+    'got ' + hat.join(', ') + ' (expected ' + [base, base + sub, base + 2 * sub].join(', ') + ')');
+
+  // 7. No stray notes — accent must never be a note; nothing outside the programmed hits
+  const expectedNotes = new Set([N.bd, N.sd, N.cp, N.ch]);
+  const strays = ons.filter(n => !expectedNotes.has(n.note));
+  report('no stray note-ons (accent is velocity-only, never a note)', strays.length === 0,
+    strays.length ? 'unexpected notes: ' + [...new Set(strays.map(n => n.note))].join(', ') : 'only ' + [...expectedNotes].join('/') + ' present');
+
+  // 8. Determinism — two consecutive exports byte-identical
+  const identical = bytes1.length === bytes2.length && bytes1.every((v, i) => v === bytes2[i]);
+  report('two consecutive exports are byte-identical', identical,
+    identical ? bytes1.length + ' bytes each' : 'lengths ' + bytes1.length + ' vs ' + bytes2.length +
+    (bytes1.length === bytes2.length ? ', first diff at index ' + bytes1.findIndex((v, i) => v !== bytes2[i]) : ''));
+
+  finish();
+
+  function fmt(list) { return list.map(n => 'tick ' + n.tick + ' vel ' + n.vel).join(' | ') || 'none found'; }
+})().catch(e => { report('test harness', false, e.message + '\n' + (e.stack || '')); finish(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+I'll analyze the current modal features and create a comprehensive plan to integrate them with Tone.js. Let me first search for relevant Tone.js documentation and examine the current audio synthesis setup.
+
+[4 tools called]
+
+# 🎵 **Comprehensive Plan: Advanced Tone.js Integration for Modal Controls**
+
+Based on the current architecture and Tone.js documentation, here's a detailed implementation plan to make all modal features functional:
+
+## **Current State Analysis**
+
+Your drum machine already has a sophisticated Tone.js implementation with:
+- ✅ Complex multi-node synthesis chains (oscillators, envelopes, filters, noise)
+- ✅ Basic parameter controls (gain, pan, tune, shuffle)
+- ✅ Professional TR-808/909 style synthesis
+- ✅ Real-time parameter updates
+
+## **🎯 Implementation Plan**
+
+### **Phase 1: Enhanced Audio Architecture** ⚡
+**Goal:** Restructure synths to support all modal controls
+
+```javascript
+// Enhanced synth structure with effects chains
+const createEnhancedSynth = (baseConfig) => {
+  // Core synthesis
+  const gain = new Tone.Gain(baseConfig.gain).connect(masterVolume);
+  const envelope = new Tone.AmplitudeEnvelope(baseConfig.envelope);
+  const filter = new Tone.Filter(baseConfig.filter);
+  
+  // Effects chain
+  const effects = {
+    reverb: new Tone.Reverb({ roomSize: 0.2, wet: 0 }),
+    delay: new Tone.FeedbackDelay("8n", 0),
+    distortion: new Tone.Distortion(0),
+    compressor: new Tone.Compressor(-30, 3),
+    eq: new Tone.EQ3()
+  };
+  
+  // Signal chain: source → filter → effects → envelope → gain → destination
+  const chain = filter.chain(
+    effects.distortion,
+    effects.compressor,
+    effects.eq,
+    effects.reverb,
+    effects.delay,
+    envelope,
+    gain
+  );
+  
+  return { ...baseConfig.components, filter, effects, envelope, gain, chain };
+};
+```
+
+### **Phase 2: ADSR Envelope Controls** 🎛️
+**Goal:** Real-time envelope manipulation
+
+```javascript
+// Enhanced envelope parameter mapping
+function updateEnvelopeControls(instrument, paramType, value) {
+  const synth = synths[instrument];
+  const normalizedValue = value / 10; // 0-10 to 0-1
+  
+  switch(paramType) {
+    case 'attack':
+      // Map 0-10 to 0.001-2.0 seconds (logarithmic)
+      synth.envelope.attack = 0.001 + Math.pow(normalizedValue, 2) * 1.999;
+      break;
+    case 'decay':
+      // Map 0-10 to 0.01-3.0 seconds
+      synth.envelope.decay = 0.01 + normalizedValue * 2.99;
+      break;
+    case 'sustain':
+      // Map 0-10 to 0-1 amplitude
+      synth.envelope.sustain = normalizedValue;
+      break;
+    case 'release':
+      // Map 0-10 to 0.01-5.0 seconds
+      synth.envelope.release = 0.01 + normalizedValue * 4.99;
+      break;
+  }
+}
+```
+
+### **Phase 3: Filter Controls** 🔧
+**Goal:** Dynamic filter manipulation
+
+```javascript
+// Filter parameter mapping with musical ranges
+function updateFilterControls(instrument, paramType, value) {
+  const synth = synths[instrument];
+  const normalizedValue = value / 10;
+  
+  switch(paramType) {
+    case 'filter':
+      // Map 0-10 to 20Hz-20kHz (logarithmic)
+      const minFreq = 20;
+      const maxFreq = 20000;
+      const frequency = minFreq * Math.pow(maxFreq / minFreq, normalizedValue);
+      synth.filter.frequency.value = frequency;
+      break;
+    case 'resonance':
+      // Map 0-10 to Q: 0.1-30 (exponential for musical feel)
+      synth.filter.Q.value = 0.1 + Math.pow(normalizedValue, 2) * 29.9;
+      break;
+  }
+}
+```
+
+### **Phase 4: Effects Implementation** ✨
+**Goal:** Professional effects processing
+
+```javascript
+// Effects parameter mapping
+function updateEffectsControls(instrument, effectType, value) {
+  const synth = synths[instrument];
+  const normalizedValue = value / 10;
+  
+  switch(effectType) {
+    case 'reverb':
+      // Control reverb wet/dry mix
+      synth.effects.reverb.wet.value = normalizedValue;
+      break;
+    case 'delay':
+      // Control delay feedback (0-0.8 to prevent runaway feedback)
+      synth.effects.delay.feedback.value = normalizedValue * 0.8;
+      break;
+    case 'distortion':
+      // Control distortion amount (0-1)
+      synth.effects.distortion.distortion = normalizedValue;
+      break;
+    case 'compression':
+      // Control compression ratio (1:1 to 20:1)
+      synth.effects.compressor.ratio.value = 1 + normalizedValue * 19;
+      break;
+  }
+}
+```
+
+### **Phase 5: EQ Controls** 🎚️
+**Goal:** Frequency-specific control
+
+```javascript
+// EQ parameter mapping
+function updateEQControls(instrument, band, value) {
+  const synth = synths[instrument];
+  const gain = (value - 5) * 3; // Map 0-10 to -15dB to +15dB
+  
+  switch(band) {
+    case 'eqHigh':
+      synth.effects.eq.high.value = gain;
+      break;
+    case 'eqLow':
+      synth.effects.eq.low.value = gain;
+      break;
+  }
+}
+```
+
+### **Phase 6: Advanced Pattern Controls** 🎲
+**Goal:** Intelligent rhythm manipulation
+
+```javascript
+// Pattern-based controls
+const patternControls = {
+  probability: {}, // Instrument hit probability (0-100%)
+  velocity: {},    // Dynamic velocity scaling
+  timing: {},      // Micro-timing adjustments
+  flam: {},        // Flam effect (rapid double hits)
+  roll: {}         // Roll effect (subdivided hits)
+};
+
+// Probability-based triggering
+function shouldTriggerNote(instrument, step) {
+  const probability = modalKnobValues[`modalProbability`] || 10;
+  const chance = probability / 10; // 0-1
+  return Math.random() < chance;
+}
+
+// Velocity randomization
+function getVelocityVariation(instrument) {
+  const velocityControl = modalKnobValues[`modalVelocity`] || 8;
+  const baseVelocity = velocityControl / 10;
+  const variation = (Math.random() - 0.5) * 0.2; // ±10% variation
+  return Math.max(0.1, Math.min(1, baseVelocity + variation));
+}
+
+// Micro-timing adjustments
+function getTimingOffset(instrument) {
+  const timingControl = modalKnobValues[`modalTiming`] || 5;
+  const maxOffset = (timingControl - 5) / 50; // ±10% of step time
+  return (Math.random() - 0.5) * maxOffset;
+}
+```
+
+### **Phase 7: Performance Optimization** ⚡
+**Goal:** Efficient resource management
+
+```javascript
+// Audio node pooling for performance
+const nodePool = {
+  reverbs: [],
+  delays: [],
+  filters: []
+};
+
+// Efficient parameter updates with throttling
+const parameterUpdateQueue = new Map();
+let updateScheduled = false;
+
+function scheduleParameterUpdate(instrument, param, value) {
+  parameterUpdateQueue.set(`${instrument}-${param}`, value);
+  
+  if (!updateScheduled) {
+    updateScheduled = true;
+    requestAnimationFrame(() => {
+      processParameterUpdates();
+      updateScheduled = false;
+    });
+  }
+}
+
+// Memory management
+function disposeUnusedNodes() {
+  Object.values(synths).forEach(synth => {
+    if (synth.disposed) return;
+    
+    // Clean up any temporary nodes
+    if (synth.tempNodes) {
+      synth.tempNodes.forEach(node => node.dispose());
+      synth.tempNodes = [];
+    }
+  });
+}
+```
+
+### **Phase 8: Modal Integration** 🔗
+**Goal:** Seamless UI-to-audio parameter mapping
+
+```javascript
+// Enhanced modal control mapping
+function setupEnhancedModalControls() {
+  const controlMappings = {
+    // Envelope controls
+    modalAttack: (inst, val) => updateEnvelopeControls(inst, 'attack', val),
+    modalDecay: (inst, val) => updateEnvelopeControls(inst, 'decay', val),
+    modalSustain: (inst, val) => updateEnvelopeControls(inst, 'sustain', val),
+    modalRelease: (inst, val) => updateEnvelopeControls(inst, 'release', val),
+    
+    // Filter controls
+    modalFilter: (inst, val) => updateFilterControls(inst, 'filter', val),
+    modalResonance: (inst, val) => updateFilterControls(inst, 'resonance', val),
+    
+    // Effects controls
+    modalReverb: (inst, val) => updateEffectsControls(inst, 'reverb', val),
+    modalDelay: (inst, val) => updateEffectsControls(inst, 'delay', val),
+    modalDistortion: (inst, val) => updateEffectsControls(inst, 'distortion', val),
+    modalCompression: (inst, val) => updateEffectsControls(inst, 'compression', val),
+    
+    // EQ controls
+    modalEqHigh: (inst, val) => updateEQControls(inst, 'eqHigh', val),
+    modalEqLow: (inst, val) => updateEQControls(inst, 'eqLow', val)
+  };
+  
+  // Apply control mappings to modal knobs
+  Object.entries(controlMappings).forEach(([controlId, updateFunc]) => {
+    const control = document.getElementById(controlId);
+    if (control) {
+      control.addEventListener('input', (e) => {
+        if (currentModalInstrument) {
+          updateFunc(currentModalInstrument, parseFloat(e.target.value));
+        }
+      });
+    }
+  });
+}
+```
+
+## **🏗️ Implementation Timeline**
+
+### **Week 1: Core Architecture**
+- [ ] Restructure synths with effects chains
+- [ ] Implement ADSR envelope controls
+- [ ] Add filter frequency/resonance controls
+
+### **Week 2: Effects & EQ**
+- [ ] Implement reverb and delay effects
+- [ ] Add distortion and compression
+- [ ] Integrate EQ controls
+
+### **Week 3: Advanced Features**
+- [ ] Implement probability and velocity controls
+- [ ] Add timing, flam, and roll effects
+- [ ] Performance optimization
+
+### **Week 4: Testing & Polish**
+- [ ] Cross-browser testing
+- [ ] Performance profiling
+- [ ] UI/UX refinements
+
+## **📚 Key Tone.js References**
+
+- **AmplitudeEnvelope**: `new Tone.AmplitudeEnvelope({ attack, decay, sustain, release })`
+- **Filter**: `new Tone.Filter({ frequency, type, Q })`
+- **Reverb**: `new Tone.Reverb({ roomSize, dampening, wet })`
+- **Delay**: `new Tone.FeedbackDelay(delayTime, feedback)`
+- **Distortion**: `new Tone.Distortion(distortion)`
+- **Compressor**: `new Tone.Compressor(threshold, ratio)`
+- **EQ3**: `new Tone.EQ3(low, mid, high)`
+
+This plan leverages your existing sophisticated Tone.js architecture while adding professional-grade controls that musicians and producers expect in modern drum machines. Each control will have musically meaningful ranges and real-time audio feedback.

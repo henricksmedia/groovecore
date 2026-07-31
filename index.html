@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GrooveCore - Drum Machine by Treq Music</title>
+  <meta name="description" content="GrooveCore: a free browser 808 drum machine by Treq Music. Real TR-808 synthesis, per-step velocity and accents, deterministic MIDI export, WAV mix + stems, share-by-URL, and offline PWA support.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <!-- Content Security Policy — self-only hosts (all dependencies are vendored).
+       'unsafe-inline' stays for the tailwind.config inline script and the Play
+       runtime's style injection; worker-src blob: for Tone.js. P1 moves this to _headers. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; img-src 'self' data: blob:; media-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'none';">
+  <link rel="canonical" href="https://groovecore.pages.dev/">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="GrooveCore">
+  <meta property="og:title" content="GrooveCore — 808 Drum Machine">
+  <meta property="og:description" content="Real 808 synthesis in your browser: per-step velocity, ratchets and flams, deterministic MIDI + WAV/stem export, live pads, and pattern chaining. Free, offline-capable, no signup.">
+  <meta property="og:url" content="https://groovecore.pages.dev/">
+  <meta property="og:image" content="https://groovecore.pages.dev/icons/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GrooveCore — 808 Drum Machine">
+  <meta name="twitter:description" content="Real 808 synthesis in your browser: per-step velocity, deterministic MIDI + WAV/stem export, live pads, pattern chaining. Free and offline-capable.">
+  <meta name="twitter:image" content="https://groovecore.pages.dev/icons/og.png">
+  <link rel="stylesheet" href="vendor/fonts/fonts.css">
+  <script src="vendor/tailwind-play.js"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: {
+        preflight: false, // Disable Tailwind's CSS reset to prevent conflicts
+      },
+      theme: {
+        extend: {
+          colors: {
+            'groove-orange': '#ff4500',
+            'groove-orange-light': '#ff6500',
+            'groove-dark': '#0a0a0a',
+            'groove-panel': '#0f0f0f',
+            'groove-border': 'rgba(255, 255, 255, 0.1)'
+          },
+          fontFamily: {
+            'roboto': ['Roboto', 'Arial', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="styles.css?v=gc8">
+  <link rel="stylesheet" href="css/brand.css?v=gc8">
+  <link rel="stylesheet" href="css/shell.css?v=gc8">
+  <script src="vendor/Tone.min.js"></script>
+</head>
+<body>
+  <div class="loader-wrapper" id="loader">
+    <div class="loader">GrooveCore</div>
+    <div class="loader-subtitle">by <span class="treq-logo">The Treq</span></div>
+  </div>
+  
+  <div id="root" class="rendering">
+    <!-- Header Section -->
+    <header class="app-header">
+      <!-- Top Row: Title and Project Controls -->
+      <div class="gc-topbar flex md:items-center md:justify-between gap-3">
+        <h1 class="app-title gc-brand flex-shrink-0">
+          <a href="https://treqmusic.com/" target="_blank" rel="noopener noreferrer" class="treq-logo" aria-label="The Treq — Treq Music website">The Treq</a>
+          <span class="gc-brand-product">GrooveCore</span>
+        </h1>
+        
+        <!-- Project Controls - moved to top right -->
+        <div class="project-controls flex items-center gap-2 flex-wrap md:flex-nowrap">
+          <button id="save" class="action-btn flex items-center gap-2 px-3 py-1.5 text-xs bg-groove-orange hover:bg-groove-orange-light rounded transition-colors">
+            <span class="material-icons text-sm">save</span>
+            <span class="button-text">SAVE</span>
+          </button>
+          <button id="load" class="action-btn flex items-center gap-2 px-3 py-1.5 text-xs bg-gray-600 hover:bg-gray-500 rounded transition-colors">
+            <span class="material-icons text-sm">folder_open</span>
+            <span class="button-text">LOAD</span>
+          </button>
+          <button id="exportMidi" class="action-btn flex items-center gap-2 px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 rounded transition-colors" title="Export: MIDI, WAV, stems, AI style prompt (Ctrl+E)">
+            <span class="material-icons text-sm">download</span>
+            <span class="button-text">EXPORT</span>
+          </button>
+          <button id="reset" class="action-btn flex items-center gap-2 px-3 py-1.5 text-xs bg-red-600 hover:bg-red-500 rounded transition-colors">
+            <span class="material-icons text-sm">refresh</span>
+            <span class="button-text">RESET</span>
+          </button>
+        </div>
+        <!-- Quick Actions (BROWSE lives here; the selects are hidden) -->
+        <div class="quick-actions flex items-center gap-3 flex-wrap flex-1 justify-center md:justify-start lg:justify-center">
+        
+        <select id="stylePreset" class="style-preset-select bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white hover:bg-gray-700 focus:ring-2 focus:ring-groove-orange focus:border-transparent transition-all min-w-[180px]" title="Style Preset Selector">
+          <option value="">-- Select Style --</option>
+          <option value="random">🎲 Random Style</option>
+          
+          <!-- Treq Example -->
+          <option value="treq">🌲 Misty Folktronica (92 BPM)</option>
+          <option value="treq_empire">🥁 Cinematic Tribal (100 BPM)</option>
+          <option value="treq_synthpop">🎹 Warm Synthpop (104 BPM)</option>
+          <option value="treq_electronic">⚡ Melodic Trance (134 BPM)</option>
+          <option value="treq_coastal">🌊 Coastal Downtempo (84 BPM)</option>
+          <option value="treq_forest">🍂 Forest Folktronica (96 BPM)</option>
+          <option value="treq_glacial">🧊 Glacial Synthwave (108 BPM)</option>
+          <option value="treq_stormfront">🌩️ Stormfront Trance (138 BPM)</option>
+          <option value="treq_tribal">🔥 Tribal Circuitry (122 BPM)</option>
+          <option value="treq_night_river">🌉 Night River 808 (132 BPM)</option>
+          <option value="treq_chrome_slide">🔩 Chrome Slide 808 (92 BPM)</option>
+          <option value="treq_velvet_knock">🪩 Velvet Knock (108 BPM)</option>
+          <option value="treq_swamp_pressure">🐊 Swamp Pressure (72 BPM)</option>
+          <option value="treq_broken_neon">🌆 Broken Neon (150 BPM)</option>
+          <option value="treq_ghost_machine">👻 Ghost Machine (78 BPM)</option>
+          <option value="treq_funk_circuit">🤖 Funk Circuit (116 BPM)</option>
+          <option value="treq_basement_siren">🚨 Basement Siren (124 BPM)</option>
+          <option value="treq_glass_snare">🍸 Glass Snare 808 (130 BPM)</option>
+          <option value="treq_afterhours">🕯️ Afterhours Cowbell (112 BPM)</option>
+          <option value="treq_static_grid">📻 Static Hat Grid (138 BPM)</option>
+          <option value="treq_ritual_clap">👏 Ritual Clap (122 BPM)</option>
+          <option value="treq_warehouse">🏭 Warehouse Core 808 (136 BPM)</option>
+          <option value="treq_liquid_sub">💧 Liquid Sub Runner (174 BPM)</option>
+          <option value="treq_jersey_bounce">🏀 Jersey Bounce 808 (145 BPM)</option>
+          <option value="treq_dub_chamber">🌑 Dub Chamber 808 (124 BPM)</option>
+          <option value="treq_latin_pressure">🌴 Latin Pressure 808 (96 BPM)</option>
+          <option value="treq_footwork">🪡 Footwork Needle 808 (160 BPM)</option>
+          <option value="treq_boom_room">📼 Boom Room 808 (88 BPM)</option>
+          <option value="treq_trance_gate">⛩️ Trance Gate 808 (128 BPM)</option>
+          <option value="treq_ebm_march">⚙️ EBM March (128 BPM)</option>
+          <option value="treq_coldwave_chain">❄️ Coldwave Chain (108 BPM)</option>
+          <option value="treq_slag_forge">🔨 Slag Forge (138 BPM)</option>
+          <option value="treq_aggro_pulse">☠️ Aggro Pulse (145 BPM)</option>
+          <option value="treq_noise_floor">☢️ Noise Floor (132 BPM)</option>
+          
+          <!-- Most Popular Electronic & Hip-Hop -->
+          <option value="trap">🔥 Trap (140 BPM)</option>
+          <option value="classic808">🎵 Classic 808 (110 BPM)</option>
+          <option value="drill">⚡ Drill (150 BPM)</option>
+          <option value="phonk">🌙 Memphis Phonk (70 BPM)</option>
+          <option value="driftphonk">🌊 Drift Phonk (155 BPM)</option>
+          <option value="phonk_house">🏠 Phonk House (128 BPM)</option>
+          <option value="cowbell_phonk">🔔 Cowbell Phonk (140 BPM)</option>
+          <option value="phonk_tape">📼 Tape Phonk (95 BPM)</option>
+          <option value="afrobeats">🌍 Afrobeats (90 BPM)</option>
+          <option value="kpop">🌟 K-Pop (110 BPM)</option>
+          <option value="kpopballad">💔 K-Pop Ballad (85 BPM)</option>
+          <option value="kpopdance">💃 K-Pop Dance (125 BPM)</option>
+          <option value="kpophiphop">🎤 K-Pop Hip-Hop (95 BPM)</option>
+          <option value="kpop_edm">🎆 K-Pop EDM (128 BPM)</option>
+          
+          <!-- Electronic Dance Music -->
+          <option value="futurebass">🚀 Future Bass (150 BPM)</option>
+          <option value="melodicfuturebass">🎵 Melodic Future Bass (140 BPM)</option>
+          <option value="aggressivefuturebass">⚡ Aggressive Future Bass (160 BPM)</option>
+          <option value="trapfuturebass">🎤 Trap Future Bass (145 BPM)</option>
+          <option value="trance">🌀 Trance (138 BPM)</option>
+          <option value="psytrance">🌀 Psytrance (142 BPM)</option>
+          <option value="uplifting_trance">🌅 Uplifting Trance (138 BPM)</option>
+          <option value="tech_trance">⚙️ Tech Trance (140 BPM)</option>
+          <option value="progressive_trance">🌊 Progressive Trance (132 BPM)</option>
+          <option value="dubstep">🎛️ Dubstep (140 BPM)</option>
+          <option value="dubstep_modern">🎛️ Modern Dubstep (140 BPM)</option>
+          <option value="dubstep_riddim">⚡ Riddim Dubstep (150 BPM)</option>
+          <option value="dubstep_melodic">🎵 Melodic Dubstep (140 BPM)</option>
+          <option value="dubstep_deep">🌑 Deep Dubstep (140 BPM)</option>
+          <option value="dnb">🥁 Drum & Bass (174 BPM)</option>
+          <option value="dnb_liquid">💧 Liquid DnB (174 BPM)</option>
+          <option value="dnb_jumpup">🦘 Jump-Up DnB (174 BPM)</option>
+          <option value="dnb_neuro">🧬 Neurofunk (172 BPM)</option>
+          <option value="jungle">🌴 Jungle (170 BPM)</option>
+          <option value="hardstyle">⚡ Hardstyle (150 BPM)</option>
+          
+          <!-- House & Garage -->
+          <option value="tech_house">🏠 Tech House (128 BPM)</option>
+          <option value="deep_house">🏠 Deep House (120 BPM)</option>
+          <option value="afro_house">🌍 Afro House (122 BPM)</option>
+          <option value="amapiano">🎹 Amapiano (112 BPM)</option>
+          <option value="gqom">🔊 Gqom (127 BPM)</option>
+          <option value="afroswing">🕺 Afroswing (104 BPM)</option>
+          <option value="ukgarage">🇬🇧 UK Garage (130 BPM)</option>
+          <option value="basshouse">🔊 Bass House (128 BPM)</option>
+          <option value="classic_house">🏠 Classic House (124 BPM)</option>
+          <option value="progressive_house">📈 Progressive House (126 BPM)</option>
+          
+          <!-- Hip-Hop Sub-genres -->
+          <option value="boom_bap">🎤 Boom Bap (92 BPM)</option>
+          <option value="gangsta_rap">🎤 Gangsta Rap (88 BPM)</option>
+          <option value="neo_soul_rap">🎤 Neo Soul Rap (85 BPM)</option>
+          <option value="lofi_hiphop">📻 Lo-Fi Hip-Hop (84 BPM)</option>
+          <option value="latintrap">🌶️ Latin Trap (90 BPM)</option>
+          <option value="trap_soul">💜 Trap Soul (128 BPM)</option>
+          <option value="pluggnb">🧸 Pluggnb (142 BPM)</option>
+          
+          <!-- Alternative & Indie -->
+          <option value="indie">🎸 Indie (120 BPM)</option>
+          <option value="indiedance">✨ Indie Dance (125 BPM)</option>
+          <option value="folktronica">🌿 Folktronica (115 BPM)</option>
+          <option value="cloud_rock">🎸 Cloud Rock (120 BPM)</option>
+          <option value="dream_pop">☁️ Dream Pop (98 BPM)</option>
+          
+          <!-- Rock -->
+          <option value="classic_rock">🎸 Classic Rock (125 BPM)</option>
+          <option value="alternative_rock">🎸 Alternative Rock (130 BPM)</option>
+          <option value="hard_rock">🎸 Hard Rock (140 BPM)</option>
+          <option value="punk_rock">🎸 Punk Rock (160 BPM)</option>
+          <option value="blues_rock">🎸 Blues Rock (112 BPM)</option>
+          
+          <!-- Metal -->
+          <option value="metalcore">🤘 Metalcore (175 BPM)</option>
+          <option value="thrash_metal">🤘 Thrash Metal (180 BPM)</option>
+          <option value="power_metal">🤘 Power Metal (160 BPM)</option>
+          <option value="black_metal">🤘 Black Metal (170 BPM)</option>
+          <option value="death_metal">🤘 Death Metal (190 BPM)</option>
+          
+          <!-- Country -->
+          <option value="pop_country">🤠 Pop Country (105 BPM)</option>
+          <option value="traditional_country">🤠 Traditional Country (100 BPM)</option>
+          <option value="outlaw_country">🤠 Outlaw Country (95 BPM)</option>
+          <option value="bro_country">🤠 Bro Country (110 BPM)</option>
+          <option value="modern_country">🤠 Modern Country (115 BPM)</option>
+          <option value="bluegrass">🤠 Bluegrass (120 BPM)</option>
+          
+          <!-- Experimental & Niche -->
+          <option value="jerseyclub">💃 Jersey Club (130 BPM)</option>
+          <option value="breakbeat">💥 Breakbeat (170 BPM)</option>
+          <option value="glitchhop">🎛️ Glitch Hop (110 BPM)</option>
+          <option value="bass_music">🎵 Bass Music (140 BPM)</option>
+        </select>
+        
+        <select id="inspirationSequence" class="style-preset-select bg-gray-800 border border-gray-600 rounded px-3 py-1.5 text-sm text-white hover:bg-gray-700 focus:ring-2 focus:ring-groove-orange focus:border-transparent transition-all min-w-[180px]" title="Inspiration Sequence Selector">
+          <option value="">-- Select Inspiration --</option>
+          <option value="random">🎲 Random Inspiration</option>
+          
+          <optgroup label="🎵 POP (13 sequences)">
+            <option value="pop_1">Catchy Hook</option>
+            <option value="pop_2">Upbeat Anthem</option>
+            <option value="pop_3">Emotional Ballad</option>
+            <option value="pop_4">Dancefloor Pop</option>
+            <option value="pop_5">Viral Hit Groove</option>
+            <option value="pop_6">Synth-Pop Fusion</option>
+            <option value="pop_7">Empowering Chorus</option>
+            <option value="pop_8">Retro Vibes</option>
+            <option value="pop_9">Heartbreak Pulse</option>
+            <option value="pop_10">Summer Jam</option>
+            <option value="pop_11">Summer Jam Variation</option>
+            <option value="pop_12">Catchy Hook Variation</option>
+            <option value="pop_13">Upbeat Anthem Variation</option>
+          </optgroup>
+          
+          <optgroup label="🎤 HIP-HOP (10 sequences)">
+            <option value="hiphop_1">Boom-Bap Bounce</option>
+            <option value="hiphop_2">Trap Snap</option>
+            <option value="hiphop_3">Melodic Flow</option>
+            <option value="hiphop_4">Southern Trap</option>
+            <option value="hiphop_5">Drill Edge</option>
+            <option value="hiphop_6">Melodic Rap</option>
+            <option value="hiphop_7">Old-School Revival</option>
+            <option value="hiphop_8">Cloud Rap Drift</option>
+            <option value="hiphop_9">Funk Bounce</option>
+            <option value="hiphop_10">East Coast Grit</option>
+          </optgroup>
+          
+          <optgroup label="🎛️ EDM (10 sequences)">
+            <option value="edm_1">Progressive Build</option>
+            <option value="edm_2">Festival Drop</option>
+            <option value="edm_3">House Groove</option>
+            <option value="edm_4">Tech House Roll</option>
+            <option value="edm_5">Future Bass Drop</option>
+            <option value="edm_6">Big Room Anthem</option>
+            <option value="edm_7">Bass House Wobble</option>
+            <option value="edm_8">Melodic Techno</option>
+            <option value="edm_9">Drum & Bass Break</option>
+            <option value="edm_10">Hardstyle Surge</option>
+          </optgroup>
+          
+          <optgroup label="🎸 ROCK (10 sequences)">
+            <option value="rock_1">Classic Riff</option>
+            <option value="rock_2">Alt Anthem</option>
+            <option value="rock_3">Punk Drive</option>
+            <option value="rock_4">Grunge Revival</option>
+            <option value="rock_5">Indie Rock Steady</option>
+            <option value="rock_6">Hard Rock Riff</option>
+            <option value="rock_7">Post-Punk</option>
+            <option value="rock_8">Garage Revival</option>
+            <option value="rock_9">Emo Revival</option>
+            <option value="rock_10">Stadium Rock</option>
+          </optgroup>
+          
+          <optgroup label="🤠 COUNTRY (10 sequences)">
+            <option value="country_1">Honky-Tonk Stomp</option>
+            <option value="country_2">Barroom Ballad</option>
+            <option value="country_3">Twangy Upbeat</option>
+            <option value="country_4">Southern Rock</option>
+            <option value="country_5">Acoustic Folk</option>
+            <option value="country_6">Party Country</option>
+            <option value="country_7">Heartland Ballad</option>
+            <option value="country_8">Outlaw Twang</option>
+            <option value="country_9">Neon Nights</option>
+            <option value="country_10">Traditional Stomp</option>
+          </optgroup>
+          
+          <optgroup label="🎷 R&B (10 sequences)">
+            <option value="rnb_1">Smooth Groove</option>
+            <option value="rnb_2">Soulful Build</option>
+            <option value="rnb_3">Neo-Soul</option>
+            <option value="rnb_4">Trap R&B</option>
+            <option value="rnb_5">Vocal Layers</option>
+            <option value="rnb_6">Alternative R&B</option>
+            <option value="rnb_7">Funk Revival</option>
+            <option value="rnb_8">Emotional Soul</option>
+            <option value="rnb_9">Retro Smooth</option>
+            <option value="rnb_10">Vulnerable Flow</option>
+          </optgroup>
+          
+          <optgroup label="🎵 TREQ (10 sequences)">
+            <option value="treq_1">Misty Downtempo</option>
+            <option value="treq_2">Ghost-Note Indie</option>
+            <option value="treq_3">Walking Folk-Pop</option>
+            <option value="treq_4">Peak Trance</option>
+            <option value="treq_5">Tribal Heartbeat</option>
+            <option value="treq_6">Indie Dance Lilt</option>
+            <option value="treq_7">Bass Drop Energy</option>
+            <option value="treq_8">Slow Swagger Shuffle</option>
+            <option value="treq_9">Conga Circuit</option>
+            <option value="treq_10">Coastal Ambient</option>
+          </optgroup>
+          
+          <optgroup label="✨ TRANCE (10 sequences)">
+            <option value="trance_1">Uplifting Build</option>
+            <option value="trance_2">Progressive Pulse</option>
+            <option value="trance_3">Vocal Trance</option>
+            <option value="trance_4">Psy-Trance Fusion</option>
+            <option value="trance_5">Euphoric Rise</option>
+            <option value="trance_6">Dreamy Layers</option>
+            <option value="trance_7">High-Energy Peak</option>
+            <option value="trance_8">Melodic Break</option>
+            <option value="trance_9">Psy Fusion</option>
+            <option value="trance_10">Vocal Harmony</option>
+          </optgroup>
+          
+          <optgroup label="🌈 K-POP (10 sequences)">
+            <option value="kpop_1">Syncopated Beat</option>
+            <option value="kpop_2">High-Energy Drop</option>
+            <option value="kpop_3">Melodic Sync</option>
+            <option value="kpop_4">Bubblegum Pop</option>
+            <option value="kpop_5">Boy Band Sync</option>
+            <option value="kpop_6">Girl Group Power</option>
+            <option value="kpop_7">Retro K-Pop</option>
+            <option value="kpop_8">Dynamic Shift</option>
+            <option value="kpop_9">Choreo Beat</option>
+            <option value="kpop_10">Youthful Pop</option>
+          </optgroup>
+          
+          <optgroup label="🎸 INDIE (10 sequences)">
+            <option value="indie_1">Chill Strum</option>
+            <option value="indie_2">Dreamy Wave</option>
+            <option value="indie_3">Alt Edge</option>
+            <option value="indie_4">Folk-Indie</option>
+            <option value="indie_5">Shoegaze Haze</option>
+            <option value="indie_6">Garage Rock</option>
+            <option value="indie_7">Indie Folk</option>
+            <option value="indie_8">Psychedelic Indie</option>
+            <option value="indie_9">Lo-Fi Chill</option>
+            <option value="indie_10">Garage Revival</option>
+          </optgroup>
+          
+          <optgroup label="🌀 PSYTRANCE (10 sequences)">
+            <option value="psy_1">Rolling Bass</option>
+            <option value="psy_2">Psy Roll</option>
+            <option value="psy_3">Full-On Peak</option>
+            <option value="psy_4">Goa Trance</option>
+            <option value="psy_5">Hi-Tech Edge</option>
+            <option value="psy_6">Dark Psy</option>
+            <option value="psy_7">Progressive Psy</option>
+            <option value="psy_8">Full-On Drive</option>
+            <option value="psy_9">Goa Wave</option>
+            <option value="psy_10">Hi-Energy Psy</option>
+          </optgroup>
+          
+        </select>
+        
+        </div> <!-- End quick-actions -->
+      </div> <!-- End top bar -->
+      </div> <!-- End header container -->
+    </header>
+    
+    <main class="main-content px-2 sm:px-4 lg:px-6">
+      
+      <!-- Center Panel: Step Sequencer -->
+      <div class="tr808-panel step-sequencer-panel">
+        <div class="sequencer-header">
+          <div class="section-title">Step Sequencer</div>
+        </div>
+        
+        <!-- Pattern Numbers Row -->
+        <div class="pattern-labels grid items-center w-full mb-1 max-lg:overflow-x-auto max-lg:overflow-y-hidden max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1">
+          <div class="instrument-label"></div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="1" 
+               title="Click to toggle all instruments on step 1 (all on/all off)">1</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="2" 
+               title="Click to toggle all instruments on step 2 (all on/all off)">2</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="3" 
+               title="Click to toggle all instruments on step 3 (all on/all off)">3</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="4" 
+               title="Click to toggle all instruments on step 4 (all on/all off)">4</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="5" 
+               title="Click to toggle all instruments on step 5 (all on/all off)">5</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="6" 
+               title="Click to toggle all instruments on step 6 (all on/all off)">6</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="7" 
+               title="Click to toggle all instruments on step 7 (all on/all off)">7</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="8" 
+               title="Click to toggle all instruments on step 8 (all on/all off)">8</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="9" 
+               title="Click to toggle all instruments on step 9 (all on/all off)">9</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="10" 
+               title="Click to toggle all instruments on step 10 (all on/all off)">10</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="11" 
+               title="Click to toggle all instruments on step 11 (all on/all off)">11</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="12" 
+               title="Click to toggle all instruments on step 12 (all on/all off)">12</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="13" 
+               title="Click to toggle all instruments on step 13 (all on/all off)">13</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="14" 
+               title="Click to toggle all instruments on step 14 (all on/all off)">14</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="15" 
+               title="Click to toggle all instruments on step 15 (all on/all off)">15</div>
+          <div class="pattern-label flex items-center justify-center cursor-pointer hover:bg-orange-500/20 transition-colors duration-200" 
+               data-action="add-column" data-column="16" 
+               title="Click to toggle all instruments on step 16 (all on/all off)">16</div>
+          <div class="flex items-center justify-center text-xs text-orange-500 font-bold">ALL</div>
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        <!-- Bass Drum Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="bd">
+          <div class="instrument-name hover:bg-orange-500/10 transition-colors duration-200" 
+               data-action="add-row" data-instrument="bd" 
+               title="Double-click to add all steps for Bass Drum">
+            <span class="material-icons">radio_button_checked</span>
+            <span><strong>BD</strong> <span class="max-md:hidden">(BASS DRUM)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="bd" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="bd" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="bd">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="bd" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelBd" data-param="level" data-instrument="bd" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainBd" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panBd" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneBd" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleBd" data-param="shuffle" data-instrument="bd" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Bass Drum - The foundation of rhythm. Deep, punchy low-frequency sound that provides the kick and drive. Typically tuned 50-100Hz with quick attack and controlled decay.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="bd">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="bd">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="bd">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="bd">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="bd">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="bd">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="bd">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="bd">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="bd">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="bd">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="bd">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="bd">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="bd">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="bd">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="bd">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="bd">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="bd" 
+               title="Click to toggle all steps for Bass Drum (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- SNARE Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="sd">
+          <div class="instrument-name hover:bg-orange-500/10 transition-colors duration-200" 
+               data-action="add-row" data-instrument="sd" 
+               title="Double-click to add all steps for Snare">
+            <span class="material-icons">album</span>
+            <span><strong>SD</strong> <span class="max-md:hidden">(SNARE)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="sd" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="sd" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="sd">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="sd" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelSd" data-param="level" data-instrument="sd" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainSd" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panSd" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneSd" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleSd" data-param="shuffle" data-instrument="sd" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Snare Drum - The backbone of the beat. Sharp, crisp sound that cuts through the mix. Typically tuned 200-300Hz with snappy attack and controlled sustain.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="sd">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="sd">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="sd">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="sd">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="sd">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="sd">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="sd">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="sd">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="sd">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="sd">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="sd">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="sd">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="sd">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="sd">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="sd">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="sd">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="sd" 
+               title="Click to toggle all steps for Snare (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- CLAP Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="cp">
+          <div class="instrument-name hover:bg-orange-500/10 transition-colors duration-200" 
+               data-action="add-row" data-instrument="cp" 
+               title="Double-click to add all steps for Clap">
+            <span class="material-icons">pan_tool</span>
+            <span><strong>CP</strong> <span class="max-md:hidden">(CLAP)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="cp" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="cp" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="cp">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="cp" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelCp" data-param="level" data-instrument="cp" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainCp" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panCp" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneCp" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleCp" data-param="shuffle" data-instrument="cp" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Clap - The classic 808 handclap. Three fast noise bursts (the flam) into a filtered tail. Sits around 1kHz with sharp attack and a short reverberant decay.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="cp">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="cp">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="cp">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="cp">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="cp">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="cp">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="cp">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="cp">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="cp">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="cp">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="cp">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="cp">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="cp">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="cp">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="cp">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="cp">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="cp" 
+               title="Click to toggle all steps for Clap (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- LOW TOM Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="lt">
+          <div class="instrument-name">
+            <span class="material-icons">circle</span>
+            <span><strong>LT</strong> <span class="max-md:hidden">(LOW TOM)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="lt" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="lt" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="lt">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="lt" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelLt" data-param="level" data-instrument="lt" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainLt" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panLt" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneLt" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleLt" data-param="shuffle" data-instrument="lt" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Low Tom - Deep, resonant tom sound. Provides low-end punch and fills. Typically tuned 80-120Hz with warm, round character.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="lt">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="lt">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="lt">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="lt">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="lt">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="lt">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="lt">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="lt">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="lt">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="lt">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="lt">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="lt">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="lt">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="lt">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="lt">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="lt">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="lt" 
+               title="Click to add all steps for Low Tom">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- MID TOM Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="mt">
+          <div class="instrument-name">
+            <span class="material-icons">lens</span>
+            <span><strong>MT</strong> <span class="max-md:hidden">(MID TOM)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="mt" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="mt" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="mt">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="mt" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelMt" data-param="level" data-instrument="mt" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainMt" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panMt" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneMt" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleMt" data-param="shuffle" data-instrument="mt" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Mid Tom - Medium-pitched tom sound. Versatile for fills and accents. Typically tuned 120-180Hz with balanced attack and decay.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="mt">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="mt">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="mt">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="mt">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="mt">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="mt">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="mt">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="mt">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="mt">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="mt">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="mt">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="mt">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="mt">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="mt">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="mt">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="mt">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="mt" 
+               title="Click to add all steps for Mid Tom">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- HIGH TOM Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="ht">
+          <div class="instrument-name">
+            <span class="material-icons">brightness_1</span>
+            <span><strong>HT</strong> <span class="max-md:hidden">(HIGH TOM)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="ht" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="ht" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="ht">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="ht" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelHt" data-param="level" data-instrument="ht" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainHt" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panHt" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneHt" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleHt" data-param="shuffle" data-instrument="ht" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">High Tom - Bright, punchy tom sound. Perfect for fills and accents. Typically tuned 180-250Hz with sharp attack and quick decay.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="ht">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="ht">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="ht">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="ht">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="ht">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="ht">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="ht">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="ht">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="ht">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="ht">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="ht">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="ht">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="ht">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="ht">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="ht">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="ht">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="ht" 
+               title="Click to add all steps for High Tom">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- RIM SHOT Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="rim">
+          <div class="instrument-name">
+            <span class="material-icons">tonality</span>
+            <span><strong>RS</strong> <span class="max-md:hidden">(RIM SHOT)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="rim" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="rim" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="rim">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="rim" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelRim" data-param="level" data-instrument="rim" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainRim" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panRim" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneRim" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleRim" data-param="shuffle" data-instrument="rim" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Rim Shot - Sharp, percussive sound. Created by hitting the rim and head simultaneously. Typically tuned 300-500Hz with sharp attack.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="rim">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="rim">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="rim">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="rim">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="rim">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="rim">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="rim">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="rim">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="rim">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="rim">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="rim">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="rim">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="rim">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="rim">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="rim">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="rim">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="rim" 
+               title="Click to add all steps for Rim Shot">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- HI-HAT CLOSED Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="hc">
+          <div class="instrument-name">
+            <span class="material-icons">trip_origin</span>
+            <span><strong>HC</strong> <span class="max-md:hidden">(HI CONGA)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="hc" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="hc" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="hc">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="hc" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelHc" data-param="level" data-instrument="hc" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainHc" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panHc" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneHc" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleHc" data-param="shuffle" data-instrument="hc" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Hi Conga - The 808 high conga: a short, tuned percussive tone. Bright, woody attack around 370Hz with a fast natural decay.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="hc">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="hc">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="hc">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="hc">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="hc">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="hc">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="hc">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="hc">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="hc">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="hc">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="hc">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="hc">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="hc">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="hc">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="hc">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="hc">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="hc" 
+               title="Click to toggle all steps for Hi Conga (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- MID CONGA Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="mc">
+          <div class="instrument-name">
+            <span class="material-icons">panorama_fish_eye</span>
+            <span><strong>MC</strong> <span class="max-md:hidden">(MID CONGA)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="mc" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="mc" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="mc">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="mc" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelMc" data-param="level" data-instrument="mc" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainMc" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panMc" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneMc" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleMc" data-param="shuffle" data-instrument="mc" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Mid Conga - The 808 mid conga: a round, tuned percussive tone near 250Hz. Warm attack with a controlled decay, great for Latin grooves.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="mc">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="mc">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="mc">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="mc">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="mc">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="mc">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="mc">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="mc">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="mc">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="mc">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="mc">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="mc">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="mc">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="mc">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="mc">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="mc">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="mc" 
+               title="Click to toggle all steps for Mid Conga (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- LOW CONGA Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="lc">
+          <div class="instrument-name">
+            <span class="material-icons">fiber_manual_record</span>
+            <span><strong>LC</strong> <span class="max-md:hidden">(LOW CONGA)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="lc" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="lc" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="lc">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="lc" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelLc" data-param="level" data-instrument="lc" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainLc" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panLc" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneLc" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleLc" data-param="shuffle" data-instrument="lc" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Low Conga - The 808 low conga: a deep, tuned percussive tone near 165Hz. Full-bodied attack with a smooth decay that anchors percussion lines.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="lc">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="lc">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="lc">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="lc">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="lc">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="lc">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="lc">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="lc">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="lc">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="lc">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="lc">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="lc">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="lc">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="lc">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="lc">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="lc">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="lc" 
+               title="Click to toggle all steps for Low Conga (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- CRASH Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="cr">
+          <div class="instrument-name hover:bg-orange-500/10 transition-colors duration-200" 
+               data-action="add-row" data-instrument="cr" 
+               title="Double-click to add all steps for Crash Cymbal">
+            <span class="material-icons">notifications</span>
+            <span><strong>CR</strong> <span class="max-md:hidden">(CRASH)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="cr" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="cr" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="cr">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="cr" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelCr" data-param="level" data-instrument="cr" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainCr" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panCr" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneCr" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleCr" data-param="shuffle" data-instrument="cr" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Crash Cymbal - Explosive, bright cymbal sound. Used for accents and transitions. Typically tuned 2-6kHz with sharp attack and long decay.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="cr">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="cr">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="cr">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="cr">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="cr">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="cr">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="cr">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="cr">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="cr">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="cr">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="cr">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="cr">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="cr">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="cr">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="cr">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="cr">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="cr" 
+               title="Click to add all steps for Crash">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- COWBELL Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="cb">
+          <div class="instrument-name hover:bg-orange-500/10 transition-colors duration-200" 
+               data-action="add-row" data-instrument="cb" 
+               title="Double-click to add all steps for Cowbell">
+            <span class="material-icons">campaign</span>
+            <span><strong>CB</strong> <span class="max-md:hidden">(COWBELL)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="cb" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="cb" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="cb">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="cb" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelCb" data-param="level" data-instrument="cb" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainCb" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panCb" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneCb" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleCb" data-param="shuffle" data-instrument="cb" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Cowbell - Metallic percussion with distinctive clang sound. Essential for Latin rhythms and funk. GM Standard MIDI note 56. Typically tuned 800Hz-2kHz with sharp attack and medium decay.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="cb">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="cb">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="cb">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="cb">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="cb">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="cb">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="cb">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="cb">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="cb">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="cb">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="cb">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="cb">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="cb">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="cb">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="cb">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="cb">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="cb" 
+               title="Click to toggle all steps for Cowbell (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- CYMBAL Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="cym">
+          <div class="instrument-name">
+            <span class="material-icons">blur_circular</span>
+            <span><strong>CY</strong> <span class="max-md:hidden">(CYMBAL)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="cym" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="cym" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="cym">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="cym" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelCym" data-param="level" data-instrument="cym" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainCym" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panCym" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneCym" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleCym" data-param="shuffle" data-instrument="cym" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Cymbal - Bright, shimmering cymbal sound. Adds sparkle and texture. Typically tuned 3-8kHz with sharp attack and long sustain.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="cym">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="cym">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="cym">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="cym">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="cym">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="cym">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="cym">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="cym">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="cym">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="cym">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="cym">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="cym">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="cym">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="cym">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="cym">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="cym">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="cym" 
+               title="Click to add all steps for Cymbal">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- OPEN HAT Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="oh">
+          <div class="instrument-name">
+            <span class="material-icons">radio_button_unchecked</span>
+            <span><strong>OH</strong> <span class="max-md:hidden">(OPEN HAT)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="oh" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="oh" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="oh">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="oh" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelOh" data-param="level" data-instrument="oh" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainOh" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panOh" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneOh" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleOh" data-param="shuffle" data-instrument="oh" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Open Hat - Open hi-hat sound with more sustain. Adds groove and variation. Typically tuned 5-9kHz with longer decay and shimmer.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="oh">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="oh">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="oh">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="oh">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="oh">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="oh">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="oh">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="oh">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="oh">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="oh">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="oh">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="oh">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="oh">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="oh">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="oh">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="oh">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="oh" 
+               title="Click to toggle all steps for Open Hat (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- CLAP Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="ch">
+          <div class="instrument-name">
+            <span class="material-icons">height</span>
+            <span><strong>CH</strong> <span class="max-md:hidden">(CLOSED HAT)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="ch" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="ch" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="ch">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="ch" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelCh" data-param="level" data-instrument="ch" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainCh" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panCh" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneCh" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleCh" data-param="shuffle" data-instrument="ch" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Closed Hat - Tight, metallic closed hi-hat from the 808 six-oscillator bank. Keeps time and adds drive. Sits around 8kHz with sharp attack and very quick decay; chokes the open hat when both play.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="ch">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="ch">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="ch">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="ch">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="ch">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="ch">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="ch">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="ch">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="ch">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="ch">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="ch">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="ch">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="ch">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="ch">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="ch">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="ch">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="ch" 
+               title="Click to toggle all steps for Closed Hat (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- CLAVE Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="cl">
+          <div class="instrument-name">
+            <span class="material-icons">height</span>
+            <span><strong>CL</strong> <span class="max-md:hidden">(CLAVE)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="cl" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="cl" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="cl">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="cl" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelCl" data-param="level" data-instrument="cl" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainCl" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panCl" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneCl" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleCl" data-param="shuffle" data-instrument="cl" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Clave - Wooden percussion sound. Essential for Latin and Afro-Cuban rhythms. Typically tuned 800Hz-2kHz with sharp attack and quick decay.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="cl">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="cl">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="cl">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="cl">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="cl">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="cl">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="cl">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="cl">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="cl">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="cl">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="cl">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="cl">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="cl">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="cl">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="cl">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="cl">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="cl" 
+               title="Click to add all steps for Claves">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- MARACA Row -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="ma">
+          <div class="instrument-name">
+            <span class="material-icons">grain</span>
+            <span><strong>MA</strong> <span class="max-md:hidden">(MARACA)</span></span>
+            <div class="mute-solo-controls">
+              <button class="mute-btn" data-instrument="ma" title="Mute">M</button>
+              <button class="solo-btn" data-instrument="ma" title="Solo">S</button>
+            </div>
+            <span class="expand-arrow">▼</span>
+          </div>
+          <div class="instrument-controls" data-instrument="ma">
+            <div class="instrument-controls-header">
+              <button class="close-controls-btn" data-instrument="ma" title="Close Controls">×</button>
+            </div>
+            <div class="instrument-controls-row">
+              <div class="control-group">
+                <div class="control-label">LEVEL</div>
+                <div class="volume-slider" id="levelMa" data-param="level" data-instrument="ma" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">GAIN</div>
+                <div class="knob small-knob" id="gainMa" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">PAN</div>
+                <div class="knob small-knob" id="panMa" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">TUNE</div>
+                <div class="knob small-knob" id="tuneMa" data-value="5"></div>
+              </div>
+              <div class="control-group">
+                <div class="control-label">SHUFFLE</div>
+                <div class="shuffle-slider" id="shuffleMa" data-param="shuffle" data-instrument="ma" style="--slider-width: 0%;"></div>
+              </div>
+            </div>
+            <div class="instrument-tooltip">Maraca - Shaker percussion sound. Adds texture and movement. Typically tuned 2-6kHz with sharp attack and quick decay.</div>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="ma">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="ma">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="ma">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="ma">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="ma">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="ma">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="ma">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="ma">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="ma">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="ma">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="ma">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="ma">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="ma">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="ma">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="ma">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="ma">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="ma" 
+               title="Click to add all steps for Maracas">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+        <!-- ACCENT Row - per-step accent flag, not a voice (Decree 1). No level/gain controls. -->
+        <div class="instrument-row grid items-center min-h-10 w-full overflow-y-hidden relative mb-2 max-lg:overflow-x-auto max-lg:min-w-full
+                    grid-cols-[minmax(120px,160px)_repeat(16,minmax(20px,1fr))_32px] gap-0.5
+                    sm:grid-cols-[140px_repeat(16,1fr)_32px] sm:gap-1
+                    lg:grid-cols-[170px_repeat(16,1fr)_36px] lg:gap-1
+                    xl:grid-cols-[180px_repeat(16,1fr)_38px] xl:gap-1
+                    2xl:grid-cols-[190px_repeat(16,1fr)_40px] 2xl:gap-1" data-instrument="accent">
+          <div class="instrument-name" 
+               title="Accent - per-step accent flag. Accented steps hit harder (all instruments on that step) and push the master bus.">
+            <span class="material-icons">bolt</span>
+            <span><strong>AC</strong> <span class="max-md:hidden">(ACCENT)</span></span>
+          </div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="1" data-instrument="accent">1</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="2" data-instrument="accent">2</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="3" data-instrument="accent">3</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="4" data-instrument="accent">4</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="5" data-instrument="accent">5</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="6" data-instrument="accent">6</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="7" data-instrument="accent">7</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="8" data-instrument="accent">8</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="9" data-instrument="accent">9</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="10" data-instrument="accent">10</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="11" data-instrument="accent">11</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="12" data-instrument="accent">12</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="13" data-instrument="accent">13</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="14" data-instrument="accent">14</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="15" data-instrument="accent">15</div>
+          <div class="step-button w-full h-8 min-h-8 border border-gray-500 rounded text-white text-lg font-normal flex items-center justify-center cursor-pointer transition-all duration-150 select-none leading-none" data-step="16" data-instrument="accent">16</div>
+          <div class="row-control-box w-full h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center cursor-pointer transition-colors duration-200" 
+               data-action="add-row" data-instrument="accent" 
+               title="Click to toggle accent on all steps (all on/all off)">
+            <span class="material-icons text-white text-sm">toggle_on</span>
+          </div>
+        </div>
+
+      </div>
+      
+    </main>
+    
+    <!-- Sticky Bottom Controls Section -->
+    <section class="sticky-bottom-section">
+      <div class="bottom-panel">
+        <!-- Transport row: its own line so it never collides with the knobs -->
+        <div class="sequencer-controls gc-transport">
+          <button class="play-button" id="playButton">
+            <span class="material-icons play-icon">play_arrow</span>
+            <span class="play-text">PLAY</span>
+          </button>
+          <button id="recordBtn" type="button" title="Live record: arm while playing, then finger drum (pads or MIDI) - hits are quantized to the nearest 16th">
+            <span class="gc-rec-dot"></span><span>REC</span>
+          </button>
+          <button id="midiInBtn" type="button" class="action-btn" title="Enable Web MIDI input (finger drum from a controller)">
+            <span class="material-icons text-sm">piano</span><span class="gc-midi-label">MIDI IN</span>
+          </button>
+          <button class="clear-button" id="clearButton">
+            <span class="material-icons clear-icon">clear</span>
+            <span class="clear-text">CLEAR</span>
+          </button>
+          <button class="help-button" id="helpButton">
+            <span class="material-icons help-icon">help_outline</span>
+          </button>
+          <div class="variation-switch" title="Pattern A/B: Switch between two different patterns for each instrument">
+            <button class="variation-btn active" data-variation="A" title="Pattern A">A</button>
+            <button class="variation-btn" data-variation="B" title="Pattern B">B</button>
+          </div>
+        </div>
+        <!-- Master Controls - Always Visible -->
+        <div class="master-controls-section">
+          <div class="master-controls">
+            <div class="bpm-display-container">
+              <div class="nixie-bpm-display" id="bpmDisplay">
+                <div class="nixie-digit" id="bpmDigit1">1</div>
+                <div class="nixie-digit" id="bpmDigit2">2</div>
+                <div class="nixie-digit" id="bpmDigit3">0</div>
+                <div class="bpm-unit">BPM</div>
+              </div>
+              <div class="nixie-glow"></div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="tempo" data-value="120"></div>
+              <div class="knob-label">Tempo</div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="masterVolume" data-value="7"></div>
+              <div class="knob-label">Master Volume</div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="masterDrive" data-value="0" title="Master drive: warm saturation on the whole mix"></div>
+              <div class="knob-label">Drive</div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="masterGlue" data-value="0" title="Master glue: bus compression that pulls the kit together"></div>
+              <div class="knob-label">Glue</div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="accentAmount" data-value="5" title="Accent amount: how much harder accented steps hit"></div>
+              <div class="knob-label">Accent</div>
+            </div>
+            <div class="pattern-status">
+              <span class="pattern-label">Active Pattern:</span>
+              <span class="pattern-display" id="patternDisplay">A</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+          <button class="tab-btn active" data-tab="groove">GROOVE & EFFECTS</button>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content active" id="groove-tab">
+          <div class="groove-controls">
+            <div class="knob-container">
+              <div class="knob" id="swing" data-value="0"></div>
+              <div class="knob-label">Swing</div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="humanize" data-value="0"></div>
+              <div class="knob-label">Humanize</div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="polyrhythm" data-value="0"></div>
+              <div class="knob-label">Polyrhythm</div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="syncopation" data-value="0"></div>
+              <div class="knob-label">Syncopation</div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="displacement" data-value="0"></div>
+              <div class="knob-label">Displacement</div>
+            </div>
+            <div class="knob-container">
+              <div class="knob" id="glitchRhythm" data-value="0"></div>
+              <div class="knob-label">Glitch</div>
+            </div>
+          </div>
+          
+          <div class="rhythm-actions">
+            <button id="asymmetrical" class="rhythm-btn">ASYMMETRICAL</button>
+            <button id="crossrhythm" class="rhythm-btn">CROSS-RHYTHM</button>
+          </div>
+        </div>
+        
+      </div>
+    </section>
+    
+    <!-- Hidden controls for compatibility -->
+    <div style="display: none;">
+      <select id="mode">
+        <option value="1stPart">1st PART</option>
+        <option value="2ndPart">2nd PART</option>
+        <option value="manualPlay">MANUAL PLAY</option>
+        <option value="patternClear">PATTERN CLEAR</option>
+      </select>
+      <select id="instrument">
+        <option value="bd">BASS DRUM</option>
+        <option value="sd">SNARE DRUM</option>
+      </select>
+      <button id="tap">TAP</button>
+    </div>
+  </div>
+
+  <!-- Instrument Controls Modal - Modern 2025 Design -->
+  <div id="instrumentModal" class="fixed inset-0 z-[9999] hidden bg-black/85 backdrop-blur-sm transition-opacity duration-300">
+    <div class="flex items-center justify-center min-h-screen p-2">
+      <div class="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/15 rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] flex flex-col overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-4 border-b border-white/10 bg-black/20">
+          <h2 id="modalInstrumentTitle" class="text-xl font-bold text-orange-500">Instrument Controls</h2>
+          
+          <!-- Modal Tempo/BPM Controls -->
+          <div class="flex items-center gap-4">
+            <!-- BPM Display -->
+            <div class="bpm-display-container">
+              <div class="nixie-bpm-display" id="modalBpmDisplay">
+                <div class="nixie-digit" id="modalBpmDigit1">1</div>
+                <div class="nixie-digit" id="modalBpmDigit2">2</div>
+                <div class="nixie-digit" id="modalBpmDigit3">0</div>
+                <div class="bpm-unit">BPM</div>
+              </div>
+              <div class="nixie-glow"></div>
+            </div>
+            
+          </div>
+          
+          <button class="p-2 bg-gray-700/50 hover:bg-red-500 rounded-lg transition-all duration-200 group border border-gray-600 hover:border-red-500" id="closeInstrumentModal" aria-label="Close modal">
+            <span class="material-icons text-white group-hover:text-white transition-colors font-bold">close</span>
+          </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="flex-1 overflow-y-auto p-4">
+          <!-- Top section with description and buttons -->
+          <div class="flex flex-col lg:flex-row gap-4 items-start mb-4">
+            <!-- Description Card -->
+            <div class="flex-1 bg-gray-900/50 border border-orange-500/30 rounded-lg p-4">
+              <div id="modalInstrumentDescription" class="text-gray-100 text-sm leading-relaxed line-clamp-3 overflow-hidden">
+                Click on an instrument to see its description and control its sound parameters.
+              </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-2 flex-wrap lg:flex-nowrap">
+              <button class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-lg font-medium transition-colors text-sm" id="resetInstrument" title="Reset this instrument to master defaults">
+                <span class="material-icons text-base">refresh</span>
+                <span>RESET ALL</span>
+              </button>
+              <button class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium transition-colors text-sm" id="randomizeInstrument">
+                <span class="material-icons text-base">shuffle</span>
+                <span>RANDOMIZE</span>
+              </button>
+              <button class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium transition-colors text-sm" id="copyInstrument">
+                <span class="material-icons text-base">content_copy</span>
+                <span>COPY</span>
+              </button>
+              <button class="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2.5 rounded-lg font-medium transition-colors text-sm" id="pasteInstrument">
+                <span class="material-icons text-base">content_paste</span>
+                <span>PASTE</span>
+              </button>
+            </div>
+          </div>
+        
+        <!-- Compact Modal Controls Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1">
+          <!-- Basic Controls Section -->
+          <div class="bg-black/20 border border-white/10 rounded-lg p-3">
+            <h3 class="text-orange-500 text-sm font-bold mb-2 pb-2 border-b border-orange-500/30 uppercase tracking-wide flex items-center justify-between">
+              Basic Controls
+              <div class="flex gap-2">
+                <button class="section-reset-btn bg-orange-500/20 text-orange-500 border border-orange-500 px-3 py-1.5 rounded text-sm hover:bg-orange-500 hover:text-white transition-all flex items-center gap-2" id="resetBasicControls" title="Reset Basic Controls to Default">
+                  <span>↻</span>
+                  <span>RESET</span>
+                </button>
+                <button class="section-randomize-btn bg-blue-500/20 text-blue-400 border border-blue-400 px-3 py-1.5 rounded text-sm hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2" id="randomizeBasicControls" title="Randomize Basic Controls">
+                  <span>🎲</span>
+                  <span>RANDOM</span>
+                </button>
+              </div>
+            </h3>
+            <div class="grid grid-cols-5 gap-2 place-items-center">
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">LEVEL</div>
+                <div class="volume-slider w-16" id="modalLevel" data-param="level" style="--slider-width: 70%;"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">GAIN</div>
+                <div class="knob small-knob w-12 h-12" id="modalGain" data-value="5"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">PAN</div>
+                <div class="knob small-knob w-12 h-12" id="modalPan" data-value="5"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">TUNE</div>
+                <div class="knob small-knob w-12 h-12" id="modalTune" data-value="5"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1 col-span-2 sm:col-span-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">SHUFFLE</div>
+                <div class="shuffle-slider w-16" id="modalShuffle" data-param="shuffle" style="--slider-width: 0%;" title="Shuffle: Delays off-beat steps (odd steps) to create a swing feel. Higher values = more shuffle groove."></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Advanced Controls Section -->
+          <div class="bg-black/20 border border-white/10 rounded-lg p-3">
+            <h3 class="text-orange-500 text-sm font-bold mb-2 pb-2 border-b border-orange-500/30 uppercase tracking-wide flex items-center justify-between">
+              Advanced Controls
+              <div class="flex gap-2">
+                <button class="section-reset-btn bg-orange-500/20 text-orange-500 border border-orange-500 px-3 py-1.5 rounded text-sm hover:bg-orange-500 hover:text-white transition-all flex items-center gap-2" id="resetAdvancedControls" title="Reset Advanced Controls to Default">
+                  <span>↻</span>
+                  <span>RESET</span>
+                </button>
+                <button class="section-randomize-btn bg-blue-500/20 text-blue-400 border border-blue-400 px-3 py-1.5 rounded text-sm hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2" id="randomizeAdvancedControls" title="Randomize Advanced Controls">
+                  <span>🎲</span>
+                  <span>RANDOM</span>
+                </button>
+              </div>
+            </h3>
+            <div class="grid grid-cols-6 gap-2 place-items-center">
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">ATTACK</div>
+                <div class="knob small-knob w-12 h-12" id="modalAttack" data-value="5" title="Envelope attack (0.4–35 ms)"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">DECAY</div>
+                <div class="knob small-knob w-12 h-12" id="modalDecay" data-value="5" title="Body decay length"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">SUSTAIN</div>
+                <div class="knob small-knob w-12 h-12" id="modalSustain" data-value="0" title="Sustain level (0 = classic one-shot; raise with Release for ADSR)"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">RELEASE</div>
+                <div class="knob small-knob w-12 h-12" id="modalRelease" data-value="0" title="Release tail after sustain (needs Sustain &gt; 0)"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">TONE</div>
+                <div class="knob small-knob w-12 h-12" id="modalFilter" data-value="5" title="Tone / filter brightness"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">RESONANCE</div>
+                <div class="knob small-knob w-12 h-12" id="modalResonance" data-value="5" title="Filter resonance (Q)"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Effects Section -->
+          <div class="bg-black/20 border border-white/10 rounded-lg p-3">
+            <h3 class="text-orange-500 text-sm font-bold mb-2 pb-2 border-b border-orange-500/30 uppercase tracking-wide flex items-center justify-between">
+              Effects
+              <div class="flex gap-2">
+                <button class="section-reset-btn bg-orange-500/20 text-orange-500 border border-orange-500 px-3 py-1.5 rounded text-sm hover:bg-orange-500 hover:text-white transition-all flex items-center gap-2" id="resetEffectsControls" title="Reset Effects to Default">
+                  <span>↻</span>
+                  <span>RESET</span>
+                </button>
+                <button class="section-randomize-btn bg-blue-500/20 text-blue-400 border border-blue-400 px-3 py-1.5 rounded text-sm hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2" id="randomizeEffectsControls" title="Randomize Effects">
+                  <span>🎲</span>
+                  <span>RANDOM</span>
+                </button>
+              </div>
+            </h3>
+            <div class="grid grid-cols-6 gap-2 place-items-center">
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">REVERB</div>
+                <div class="knob small-knob w-12 h-12" id="modalReverb" data-value="0"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">DELAY</div>
+                <div class="knob small-knob w-12 h-12" id="modalDelay" data-value="0"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">DISTORTION</div>
+                <div class="knob small-knob w-12 h-12" id="modalDistortion" data-value="0"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">COMPRESSION</div>
+                <div class="knob small-knob w-12 h-12" id="modalCompression" data-value="0" title="Per-voice compression amount"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">EQ HIGH</div>
+                <div class="knob small-knob w-12 h-12" id="modalEqHigh" data-value="5" title="High shelf ±12 dB"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">EQ LOW</div>
+                <div class="knob small-knob w-12 h-12" id="modalEqLow" data-value="5" title="Low shelf ±12 dB"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pattern Controls Section -->
+          <div class="bg-black/20 border border-white/10 rounded-lg p-3">
+            <h3 class="text-orange-500 text-sm font-bold mb-2 pb-2 border-b border-orange-500/30 uppercase tracking-wide flex items-center justify-between">
+              Pattern Controls
+              <div class="flex gap-2">
+                <button class="section-reset-btn bg-orange-500/20 text-orange-500 border border-orange-500 px-3 py-1.5 rounded text-sm hover:bg-orange-500 hover:text-white transition-all flex items-center gap-2" id="resetPatternControls" title="Reset Pattern Controls to Default">
+                  <span>↻</span>
+                  <span>RESET</span>
+                </button>
+                <button class="section-randomize-btn bg-blue-500/20 text-blue-400 border border-blue-400 px-3 py-1.5 rounded text-sm hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2" id="randomizePatternControls" title="Randomize Pattern Controls">
+                  <span>🎲</span>
+                  <span>RANDOM</span>
+                </button>
+              </div>
+            </h3>
+            <div class="grid grid-cols-6 gap-2 place-items-center">
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">PROBABILITY</div>
+                <div class="knob small-knob w-12 h-12" id="modalProbability" data-value="10"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">VELOCITY</div>
+                <div class="knob small-knob w-12 h-12" id="modalVelocity" data-value="5"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">TIMING</div>
+                <div class="knob small-knob w-12 h-12" id="modalTiming" data-value="5"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">FLAM</div>
+                <div class="knob small-knob w-12 h-12" id="modalFlam" data-value="0"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">ROLL</div>
+                <div class="knob small-knob w-12 h-12" id="modalRoll" data-value="0"></div>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <div class="text-xs text-orange-500 font-bold uppercase">PITCH BEND</div>
+                <div class="knob small-knob w-12 h-12" id="modalPitchBend" data-value="5"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div id="helpModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>GrooveCore Help</h2>
+        <button id="closeModal" class="close-btn">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      
+      <div class="modal-tabs">
+        <button class="tab-btn active" data-tab="intro">Getting Started</button>
+        <button class="tab-btn" data-tab="usage">Shortcuts</button>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Introduction Tab -->
+        <div id="intro-tab" class="tab-content active">
+          <h3>Getting started</h3>
+          <ul>
+            <li><strong>Program a beat:</strong> click step buttons to toggle hits on and off (velocity 100). Shift+click writes an accent hit (127), Alt+click a ghost (45).</li>
+            <li><strong>Shape a hit:</strong> drag vertically on an active step to set its velocity (1-127). Right-click (or long-press on touch) a step for ratchet x2/x3/x4, flam, probability, and velocity tiers.</li>
+            <li><strong>Accent row (AC):</strong> the last grid row flags whole steps as accented - every instrument on that step hits harder and pushes the master bus. The Accent knob sets how much.</li>
+            <li><strong>Play:</strong> press PLAY or the Space bar. Tempo is the knob next to the BPM display (40-260 BPM), or tap the T key in time.</li>
+            <li><strong>Explore sounds:</strong> click an instrument name to open its controls (level, gain, pan, tune, decay, tone, snappy, sends). Every knob is drag, wheel, and touch friendly; double-click resets it.</li>
+            <li><strong>Find a groove:</strong> use BROWSE (or press P) to search 171 presets and grooves by genre and BPM, mark favorites, or hit Surprise me. Every load is undoable.</li>
+          </ul>
+
+          <h3>Your work is safe</h3>
+          <ul>
+            <li><strong>Autosave:</strong> the session is stored locally as you edit and restored when you come back - closing the tab loses nothing.</li>
+            <li><strong>Undo/redo:</strong> Ctrl+Z / Ctrl+Y cover step edits, knob gestures, preset loads, clears, and chain edits (100 levels).</li>
+            <li><strong>Projects:</strong> SAVE downloads a .groove.json file; LOAD brings it back (old io808 save files still load).</li>
+            <li><strong>Share:</strong> the SHARE button copies a link that recreates your beat on any device - no account, no server.</li>
+          </ul>
+
+          <h3>Export</h3>
+          <ul>
+            <li><strong>MIDI:</strong> the MIDI button opens the export menu - single track, multi-track (per-instrument, with level/pan CCs), or the full chain. 480 PPQ, exact velocities, deterministic: re-exports are byte-identical.</li>
+            <li><strong>Audio:</strong> render the mix as WAV, or a zip of per-instrument stems that line up sample-accurately in your DAW.</li>
+            <li><strong>What you hear is what you get:</strong> playback, MIDI, and audio renders all come from the same event list - swing, ratchets, flams, velocities and accents match exactly.</li>
+          </ul>
+
+          <h3>Play it live</h3>
+          <ul>
+            <li><strong>Pads:</strong> the letter keys are drum pads (see the Shortcuts tab, or press ? any time).</li>
+            <li><strong>MIDI in:</strong> MIDI IN connects a controller - note-on velocity is respected.</li>
+            <li><strong>Record:</strong> REC arms while playing; pad and MIDI hits are quantized to the nearest 16th and written into the pattern.</li>
+            <li><strong>Chain:</strong> the chain bar under the sequencer strings up to 8 pattern slots (A/B x 16) into a song, switched on the bar. DUP&rarr; duplicates the current pattern into the next free slot.</li>
+          </ul>
+        </div>
+
+        <!-- Shortcuts / Usage Tab -->
+        <div id="usage-tab" class="tab-content">
+          <h3>Keyboard shortcuts</h3>
+          <p>Press <strong>?</strong> at any time for this list in an overlay. Shortcuts are ignored while you type in a text field or a dialog is open.</p>
+
+          <h4>Global</h4>
+          <ul>
+            <li><strong>Space</strong> - Play / Stop</li>
+            <li><strong>T</strong> - Tap tempo</li>
+            <li><strong>M</strong> - Metronome (Ctrl+M while pads are active; plain M is the MT pad)</li>
+            <li><strong>Ctrl+Z</strong> - Undo &nbsp;&middot;&nbsp; <strong>Ctrl+Shift+Z / Ctrl+Y</strong> - Redo</li>
+            <li><strong>Ctrl+S</strong> - Save project &nbsp;&middot;&nbsp; <strong>Ctrl+E</strong> - Export menu</li>
+            <li><strong>&uarr; / &darr;</strong> - BPM +1 / -1 (Shift: &plusmn;10)</li>
+            <li><strong>1 / 2</strong> - Variation A / B</li>
+            <li><strong>P</strong> - Preset browser</li>
+            <li><strong>?</strong> - Shortcut overlay &nbsp;&middot;&nbsp; <strong>Esc</strong> - Close dialogs</li>
+          </ul>
+
+          <h4>Finger drumming pads</h4>
+          <ul>
+            <li><strong>Z X C V B N M ,</strong> - BD&nbsp; SD&nbsp; CP&nbsp; CH&nbsp; OH&nbsp; LT&nbsp; MT&nbsp; HT</li>
+            <li><strong>A S D F G H J K L</strong> - RIM&nbsp; CB&nbsp; CL&nbsp; MA&nbsp; HC&nbsp; MC&nbsp; LC&nbsp; CYM&nbsp; CR</li>
+            <li><strong>Shift + pad</strong> - Accent hit (velocity 127)</li>
+            <li><strong>Alt + pad</strong> - Ghost hit (velocity 60)</li>
+          </ul>
+
+          <h4>Knob gestures</h4>
+          <ul>
+            <li><strong>Drag</strong> - Turn knob (works with mouse, touch, and pen)</li>
+            <li><strong>Shift + drag</strong> - Fine adjust (x0.1) &nbsp;&middot;&nbsp; <strong>Ctrl + drag</strong> - Coarse adjust (x3)</li>
+            <li><strong>Double-click / double-tap</strong> - Reset knob to default</li>
+            <li><strong>Mouse wheel</strong> - Nudge value &plusmn;0.3</li>
+          </ul>
+
+          <h4>Grid</h4>
+          <ul>
+            <li><strong>Click step</strong> - Toggle hit on/off (100) &nbsp;&middot;&nbsp; <strong>Shift+click</strong> accent (127), <strong>Alt+click</strong> ghost (45)</li>
+            <li><strong>Drag on an active step</strong> - Set velocity (1px = 1 velocity); drag sideways to paint</li>
+            <li><strong>Right-click / long-press step</strong> - Ratchet, flam, probability, tier, clear</li>
+            <li><strong>Tab + arrow keys</strong> - Navigate the grid; Enter toggles the focused step</li>
+            <li><strong>Number row / instrument name</strong> - Click to bulk-toggle a column or row</li>
+            <li><strong>CLEAR</strong> - Clear the pattern (drag across the number row to set pattern length)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="presets.js?v=gc8"></script>
+  <script src="inspiration-sequences.js?v=gc8"></script>
+  <!-- Master MIDI Mapping -->
+  <script src="midi-mapping.js?v=gc8"></script>
+  <!-- Enhanced MIDI Export Functions -->
+  <script src="midi_export_enhanced.js?v=gc8"></script>
+
+  <!-- Pointer knob/slider engine (classic — must precede app.js) -->
+  <script src="js/ui/knob-engine.js?v=gc8"></script>
+  <script src="app.js?v=gc8"></script>
+  <!-- Modern audio engine + canonical event list (ES modules, attach window globals) -->
+  <script type="module" src="js/audio/params.js?v=gc8"></script>
+  <script type="module" src="js/audio/voices.js?v=gc8"></script>
+  <script type="module" src="js/audio/bus.js?v=gc8"></script>
+  <script type="module" src="js/core/events.js?v=gc8"></script>
+  <!-- Boot loader — imports every feature module + registers the service worker. LAST. -->
+  <script type="module" src="js/main.js?v=gc8"></script>
+</body>
+</html>

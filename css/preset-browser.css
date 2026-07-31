@@ -1,0 +1,332 @@
+/* =============================================================================
+   GrooveCore preset browser (WS-H)
+   Companion to js/ui/preset-browser.js. Requires css/tokens.css.
+   ============================================================================= */
+
+/* Hide the two native selects once the browser module is live — they stay in
+   the DOM (app.js change handlers and state keep working). */
+.gc-has-preset-browser #stylePreset,
+.gc-has-preset-browser #inspirationSequence {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0 !important;
+}
+
+/* ---- BROWSE opener button -------------------------------------------------- */
+#gc-browse-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--gc-surface-2);
+  color: var(--gc-text);
+  border: 1px solid var(--gc-orange);
+  border-radius: var(--gc-radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background var(--gc-dur-fast) var(--gc-ease),
+              box-shadow var(--gc-dur-fast) var(--gc-ease);
+}
+#gc-browse-btn:hover {
+  background: var(--gc-surface-3);
+  box-shadow: 0 0 10px var(--gc-orange-glow);
+}
+#gc-browse-btn .gc-browse-count {
+  background: var(--gc-orange);
+  color: var(--gc-text);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: var(--gc-radius-pill);
+}
+
+/* Active preset chip — lives in the top-bar gap next to BROWSE */
+#gc-active-preset {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(280px, 36vw);
+  padding: 6px 10px;
+  background: transparent;
+  color: var(--gc-text, #e8e8e8);
+  border: 1px solid var(--gc-border-strong, #3a3a3a);
+  border-radius: var(--gc-radius-md, 6px);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: border-color var(--gc-dur-fast, 120ms) var(--gc-ease, ease),
+              background var(--gc-dur-fast, 120ms) var(--gc-ease, ease);
+}
+#gc-active-preset:hover,
+#gc-active-preset:focus-visible {
+  border-color: var(--gc-orange, #ff4500);
+  background: var(--gc-surface-2, #1a1a1a);
+  outline: none;
+}
+#gc-active-preset[hidden] {
+  display: none !important;
+}
+#gc-active-preset .gc-active-preset-emoji {
+  flex: 0 0 auto;
+  font-size: 13px;
+  line-height: 1;
+}
+#gc-active-preset .gc-active-preset-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--gc-text, #e8e8e8);
+}
+#gc-active-preset .gc-active-preset-genre {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gc-orange, #ff4500);
+  opacity: 0.9;
+}
+@media (max-width: 640px) {
+  #gc-active-preset .gc-active-preset-genre { display: none; }
+  #gc-active-preset { max-width: 46vw; }
+}
+
+/* ---- Overlay + panel ------------------------------------------------------- */
+#gc-preset-browser {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: none;
+}
+#gc-preset-browser.gc-open {
+  display: block;
+}
+
+#gc-preset-browser .gc-pb-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+#gc-preset-browser .gc-pb-panel {
+  position: absolute;
+  top: 8vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(680px, calc(100vw - 24px));
+  max-height: 82vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--gc-surface-1);
+  border: 1px solid var(--gc-border-strong);
+  border-radius: var(--gc-radius-lg);
+  box-shadow: var(--gc-shadow-2);
+  overflow: hidden;
+}
+
+/* ---- Head ------------------------------------------------------------------ */
+.gc-pb-head {
+  display: flex;
+  gap: var(--gc-space-2);
+  align-items: center;
+  padding: var(--gc-space-3);
+  border-bottom: 1px solid var(--gc-border);
+}
+
+.gc-pb-search {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  background: var(--gc-surface-2);
+  color: var(--gc-text);
+  border: 1px solid var(--gc-border-strong);
+  border-radius: var(--gc-radius-md);
+  font-size: 14px;
+}
+.gc-pb-search:focus {
+  outline: none;
+  border-color: var(--gc-orange);
+  box-shadow: 0 0 0 1px var(--gc-orange);
+}
+
+.gc-pb-surprise,
+.gc-pb-close {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  background: var(--gc-surface-3);
+  color: var(--gc-text);
+  border: 1px solid var(--gc-border-strong);
+  border-radius: var(--gc-radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--gc-dur-fast) var(--gc-ease);
+}
+.gc-pb-surprise:hover,
+.gc-pb-close:hover {
+  border-color: var(--gc-orange);
+}
+.gc-pb-close {
+  padding: 8px 10px;
+}
+
+/* ---- Tabs ------------------------------------------------------------------ */
+.gc-pb-tabs {
+  display: flex;
+  gap: var(--gc-space-1);
+  padding: var(--gc-space-2) var(--gc-space-3) 0;
+}
+.gc-pb-tab {
+  padding: 6px 16px;
+  background: transparent;
+  color: var(--gc-text-dim);
+  border: 1px solid transparent;
+  border-radius: var(--gc-radius-md) var(--gc-radius-md) 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.gc-pb-tab.gc-active {
+  color: var(--gc-orange);
+  border-color: var(--gc-border);
+  border-bottom-color: var(--gc-surface-1);
+  background: var(--gc-surface-2);
+}
+
+/* ---- Genre chips ----------------------------------------------------------- */
+.gc-pb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: var(--gc-space-2) var(--gc-space-3);
+  border-bottom: 1px solid var(--gc-border);
+}
+.gc-pb-chip {
+  padding: 3px 10px;
+  background: var(--gc-surface-2);
+  color: var(--gc-text-dim);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-pill);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all var(--gc-dur-fast) var(--gc-ease);
+}
+.gc-pb-chip:hover {
+  border-color: var(--gc-orange);
+  color: var(--gc-text);
+}
+.gc-pb-chip.gc-active {
+  background: var(--gc-orange);
+  border-color: var(--gc-orange);
+  color: var(--gc-text);
+}
+
+/* ---- List ------------------------------------------------------------------ */
+.gc-pb-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--gc-space-2);
+  min-height: 120px;
+}
+.gc-pb-list:focus {
+  outline: none;
+}
+
+.gc-pb-item {
+  display: flex;
+  align-items: center;
+  gap: var(--gc-space-2);
+  padding: 8px 10px;
+  border-radius: var(--gc-radius-md);
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.gc-pb-item.gc-active {
+  background: var(--gc-orange-tint);
+  border-color: var(--gc-orange);
+}
+
+.gc-pb-emoji { flex-shrink: 0; width: 22px; text-align: center; }
+
+.gc-pb-label {
+  flex: 1;
+  min-width: 0;
+  color: var(--gc-text);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gc-pb-genre {
+  flex-shrink: 0;
+  color: var(--gc-text-faint);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gc-pb-bpm {
+  flex-shrink: 0;
+  min-width: 62px;
+  text-align: center;
+  padding: 2px 6px;
+  background: var(--gc-surface-3);
+  color: var(--gc-808-yellow);
+  border-radius: var(--gc-radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.gc-pb-fav {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--gc-text-faint);
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px 6px;
+  cursor: pointer;
+  border-radius: var(--gc-radius-sm);
+}
+.gc-pb-fav:hover { color: var(--gc-808-yellow); }
+.gc-pb-fav.gc-faved { color: var(--gc-808-yellow); }
+
+.gc-pb-empty {
+  padding: var(--gc-space-5);
+  text-align: center;
+  color: var(--gc-text-faint);
+  font-size: 13px;
+}
+
+/* ---- Foot ------------------------------------------------------------------ */
+.gc-pb-foot {
+  padding: 6px var(--gc-space-3);
+  border-top: 1px solid var(--gc-border);
+  color: var(--gc-text-faint);
+  font-size: 11px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  #gc-preset-browser .gc-pb-panel {
+    top: 4vh;
+    max-height: 90vh;
+  }
+  .gc-pb-genre { display: none; }
+  #gc-browse-btn { font-size: 12px; padding: 8px 10px; }
+}

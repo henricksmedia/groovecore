@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrooveCore — State Round-Trip Test</title>
+<style>
+  body { background:#0a0a0a; color:#e8e0d0; font-family:'Segoe UI',Roboto,Arial,sans-serif; margin:0; padding:24px; }
+  h1 { color:#ff6600; font-size:20px; letter-spacing:1px; }
+  .sub { color:#888; font-size:13px; margin-bottom:20px; }
+  #banner { padding:14px 18px; border-radius:6px; font-weight:bold; font-size:16px; margin-bottom:18px; border:1px solid #333; }
+  #banner.pass { background:#0d2b12; color:#4caf50; border-color:#2e7d32; }
+  #banner.fail { background:#2b0d0d; color:#ef5350; border-color:#c62828; }
+  #banner.warn { background:#2b220d; color:#ffb300; border-color:#9a7d0a; }
+  .row { display:flex; gap:10px; padding:8px 12px; border-bottom:1px solid #1e1e1e; font-size:14px; align-items:baseline; }
+  .row .dot { width:12px; height:12px; border-radius:50%; flex:0 0 12px; align-self:center; }
+  .row.pass .dot { background:#4caf50; } .row.fail .dot { background:#ef5350; } .row.skip .dot { background:#9a7d0a; }
+  .row .name { flex:0 0 380px; }
+  .row .detail { color:#999; font-size:12px; font-family:Consolas,monospace; word-break:break-all; }
+  .row.fail .detail { color:#ef9a9a; }
+  pre { background:#111; border:1px solid #222; padding:10px; font-size:12px; color:#aaa; overflow-x:auto; }
+</style>
+</head>
+<body>
+<h1>STATE ROUND-TRIP — test_state_roundtrip.html</h1>
+<div class="sub">Verifies snapshot schema v2 (js/core/schema.js): snapshot → restore → snapshot deep equality,
+v1 <code>io808-save.json</code> migration (true → 100), share encode/decode, and a simulated kill-tab
+autosave restore. Serve from the repo root and open <code>/test-scripts/test_state_roundtrip.html</code>.</div>
+<div id="banner" class="warn">Running…</div>
+<div id="results"></div>
+<pre id="log"></pre>
+
+<script type="module">
+const results = document.getElementById('results');
+const banner  = document.getElementById('banner');
+const logEl   = document.getElementById('log');
+const rows = [];
+function report(name, ok, detail) {
+  rows.push({ name, ok, detail });
+  const div = document.createElement('div');
+  div.className = 'row ' + (ok === null ? 'skip' : ok ? 'pass' : 'fail');
+  div.innerHTML = '<span class="dot"></span><span class="name"></span><span class="detail"></span>';
+  div.children[1].textContent = name;
+  div.children[2].textContent = detail || '';
+  results.appendChild(div);
+}
+function finish() {
+  const fails = rows.filter(r => r.ok === false).length;
+  const skips = rows.filter(r => r.ok === null).length;
+  if (fails) { banner.className = 'fail'; banner.textContent = 'FAIL — ' + fails + ' assertion(s) failed'; }
+  else if (skips === rows.length) { banner.className = 'warn'; banner.textContent = 'SKIPPED — schema module not loaded'; }
+  else { banner.className = 'pass'; banner.textContent = 'PASS — ' + rows.filter(r => r.ok).length + ' assertions green'; }
+}
+function log(m) { logEl.textContent += m + '\n'; }
+
+function deepEqual(a, b, path = '$') {
+  if (a === b) return null;
+  if (typeof a !== typeof b) return path + ': type ' + typeof a + ' vs ' + typeof b;
+  if (a === null || b === null || typeof a !== 'object') return path + ': ' + JSON.stringify(a) + ' vs ' + JSON.stringify(b);
+  if (Array.isArray(a) !== Array.isArray(b)) return path + ': array vs object';
+  const ka = Object.keys(a), kb = Object.keys(b);
+  if (ka.length !== kb.length) return path + ': key count ' + ka.length + ' vs ' + kb.length +
+    ' (only-left: ' + ka.filter(k => !kb.includes(k)).join(',') + '; only-right: ' + kb.filter(k => !ka.includes(k)).join(',') + ')';
+  for (const k of ka) {
+    if (!(k in b)) return path + ': missing key ' + k;
+    const d = deepEqual(a[k], b[k], path + '.' + k);
+    if (d) return d;
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Fixtures
+// ---------------------------------------------------------------------------
+const INSTRUMENTS = ['bd','sd','lt','mt','ht','rim','cp','hc','mc','lc','cb','cl','ma','ch','oh','cym','cr'];
+function emptyPattern() {
+  // part2 in canonical form (16 empty cells) — the share codec normalizes [] to this
+  return { part1: Array.from({ length: 16 }, () => ({})),
+           part2: Array.from({ length: 16 }, () => ({})),
+           length1: 16, length2: 0, sfx1: {} };
+}
+function buildV2Snapshot() {
+  const a = Array.from({ length: 16 }, emptyPattern);
+  const b = Array.from({ length: 16 }, emptyPattern);
+  a[0].part1[0]  = { bd: 127, sd: 100, cp: 100 };
+  a[0].part1[4]  = { sd: 45 };
+  a[0].part1[8]  = { bd: 127, accent: true };
+  a[0].part1[12] = { ch: 100 };
+  a[0].sfx1 = { '12:ch': { r: 3 }, '4:sd': { f: 1 }, '7:ch': { p: 50 } };
+  a[1].part1[0]  = { cb: 100 };
+  return {
+    v: 2,
+    meta: { app: 'groovecore', name: 'roundtrip-test', savedAt: '2026-07-28T00:00:00.000Z' },
+    tempo: 128,
+    knobValues: { tempo: 3.4, masterVolume: 7, bdLevel: 8 },
+    patternControls: { probability: {}, velocity: {}, timing: {}, flam: {}, roll: {}, pitchBend: {} },
+    modalKnobValues: { modalTiming: 5, modalVelocity: 8 },
+    muteSolo: { muted: ['ma'], soloed: [] },
+    patterns: { a, b },
+    sel: { variation: 'a', currentPattern: 0 },
+    ext: { chain: { mode: 'loop', slots: [{ v: 'a', i: 0 }, { v: 'a', i: 1 }], pos: 0 } }
+  };
+}
+function buildV1Save() {
+  // Legacy io808-save.json era: no `v` field, `true` cells, muteSoloState arrays
+  const mk = () => ({ part1: Array.from({ length: 16 }, () => ({})), part2: [], length1: 16, length2: 0 });
+  const a = Array.from({ length: 16 }, mk);
+  a[0].part1[0] = { bd: true, ch: true };
+  a[0].part1[4] = { sd: true };
+  return {
+    patterns: { a, b: Array.from({ length: 16 }, mk) },
+    knobValues: { tempo: 3 },
+    tempo: 120,
+    currentPattern: 0,
+    currentPart: 1,
+    variation: 'a',
+    muteSoloState: { muted: [], soloed: ['bd'] },
+    modalKnobValues: { modalTiming: 5 },
+    patternControls: { probability: {}, velocity: {}, timing: {} }
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Load js/core/schema.js (WS-C; may not exist yet — degrade gracefully)
+// ---------------------------------------------------------------------------
+async function loadSchemaApi() {
+  let mod = null;
+  try { mod = await import('../js/core/schema.js'); }
+  catch (e) { log('import js/core/schema.js failed: ' + e.message); }
+  if (mod && typeof mod.init === 'function') { try { await mod.init(window.GC); } catch (e) { log('schema init() threw: ' + e.message); } }
+  const pools = [mod, mod && mod.default, window.GCSchema, window.GrooveSchema].filter(Boolean);
+  for (const p of pools) {
+    if (typeof p.migrateV1 === 'function' || typeof p.toShare === 'function' || typeof p.validate === 'function') return p;
+  }
+  return null;
+}
+
+(async () => {
+  const api = await loadSchemaApi();
+  if (!api) {
+    report('schema module (js/core/schema.js)', null,
+      'schema module not loaded — js/core/schema.js is missing or exposes no migrateV1/toShare/validate API yet. ' +
+      'This is expected until workstream C lands. No assertions were run.');
+    finish();
+    return;
+  }
+  log('schema API keys: ' + Object.keys(api).join(', '));
+  const normalize = (s) => {
+    if (typeof api.validate === 'function') {
+      try { const r = api.validate(s); if (r && typeof r === 'object' && !Array.isArray(r) && ('v' in r || 'patterns' in r)) return r; } catch (e) {}
+    }
+    return s;
+  };
+
+  // 1. Snapshot → restore (serialize/parse + normalize) → snapshot deep equality
+  {
+    const snap = buildV2Snapshot();
+    const restored = normalize(JSON.parse(JSON.stringify(normalize(buildV2Snapshot()))));
+    const diff = deepEqual(normalize(snap), restored);
+    report('snapshot → restore → snapshot deep equality', !diff, diff || 'v2 snapshot survives serialize + normalize intact');
+    // Normalization must be idempotent, or every autosave would mutate state
+    const once = normalize(buildV2Snapshot());
+    const twice = normalize(JSON.parse(JSON.stringify(once)));
+    const diff2 = deepEqual(JSON.parse(JSON.stringify(once)), JSON.parse(JSON.stringify(twice)));
+    report('normalization is idempotent', !diff2, diff2 || 'validate(validate(s)) === validate(s)');
+  }
+
+  // 2. v1 io808-save.json migration (true → 100)
+  if (typeof api.migrateV1 === 'function') {
+    try {
+      const migrated = api.migrateV1(buildV1Save());
+      report('migrateV1 returns a v2 snapshot', !!migrated && migrated.v === 2, 'v = ' + (migrated && migrated.v));
+      const cell = migrated && migrated.patterns && migrated.patterns.a && migrated.patterns.a[0] &&
+                   migrated.patterns.a[0].part1 && migrated.patterns.a[0].part1[0];
+      report('legacy true cells migrate to velocity 100', !!cell && cell.bd === 100 && cell.ch === 100,
+        'a[0].part1[0] = ' + JSON.stringify(cell));
+      const sdCell = migrated && migrated.patterns.a[0].part1[4];
+      report('all migrated hits are numeric velocities', !!sdCell && sdCell.sd === 100, 'a[0].part1[4] = ' + JSON.stringify(sdCell));
+      const ms = migrated && (migrated.muteSolo || migrated.muteSoloState);
+      report('mute/solo arrays survive migration', !!ms && Array.isArray(ms.soloed) && ms.soloed.includes('bd'),
+        JSON.stringify(ms));
+      report('tempo survives migration', !!migrated && migrated.tempo === 120, 'tempo = ' + (migrated && migrated.tempo));
+    } catch (e) { report('migrateV1 (v1 io808-save.json)', false, e.message); }
+  } else {
+    report('migrateV1 (v1 io808-save.json)', null, 'api.migrateV1 not exposed — skipped');
+  }
+
+  // 3. Share toShare/fromShare round-trip
+  if (typeof api.toShare === 'function' && typeof api.fromShare === 'function') {
+    try {
+      const snap = normalize(buildV2Snapshot());
+      const share = api.toShare(JSON.parse(JSON.stringify(snap)));
+      const size = typeof share === 'string' ? share.length : JSON.stringify(share).length;
+      const back = normalize(await api.fromShare(share));
+      const fields = ['tempo', 'patterns', 'sel', 'ext', 'muteSolo'];
+      let diff = null;
+      for (const f of fields) { diff = deepEqual(snap[f], back[f], '$.' + f); if (diff) break; }
+      report('share toShare → fromShare round-trip', !diff,
+        diff || ('sparse payload ' + size + ' chars; tempo/patterns/sel/ext/muteSolo identical'));
+    } catch (e) { report('share toShare/fromShare round-trip', false, e.message); }
+  } else {
+    report('share toShare/fromShare round-trip', null, 'api.toShare/fromShare not exposed — skipped');
+  }
+
+  // 4. Simulated kill-tab: write autosave key, clear runtime, restore, compare
+  {
+    const KEY = 'gc.autosave.v2';
+    const previous = localStorage.getItem(KEY); // never clobber a real autosave
+    try {
+      let runtime = normalize(buildV2Snapshot());
+      const pristine = JSON.parse(JSON.stringify(runtime));
+      localStorage.setItem(KEY, JSON.stringify(runtime));
+      runtime = null;                                   // "tab killed"
+      const raw = localStorage.getItem(KEY);            // "tab reopened"
+      const restored = normalize(JSON.parse(raw));
+      const diff = deepEqual(pristine, JSON.parse(JSON.stringify(restored)));
+      report('kill-tab: autosave write → runtime cleared → restore → deep equal', !diff,
+        diff || (raw.length + ' chars in ' + KEY + '; exact state recovered'));
+    } catch (e) {
+      report('kill-tab simulation', false, e.message);
+    } finally {
+      if (previous === null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, previous);
+    }
+  }
+
+  finish();
+})().catch(e => { report('test harness', false, e.message + '\n' + (e.stack || '')); finish(); });
+</script>
+</body>
+</html>

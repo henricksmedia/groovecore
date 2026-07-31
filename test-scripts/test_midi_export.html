@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIDI Export Test - GrooveCore</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .test-section {
+      background: #2a2a2a;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      border: 1px solid #444;
+    }
+    .test-result {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .pass { background: #0d4f0d; border: 1px solid #0f5f0f; }
+    .fail { background: #4f0d0d; border: 1px solid #5f0f0f; }
+    .info { background: #0d2f4f; border: 1px solid #0f3f5f; }
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #45a049; }
+    .midi-button { background: #2196F3; }
+    .midi-button:hover { background: #1976D2; }
+    pre {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/midi-writer-js@3.1.1"></script>
+</head>
+<body>
+  <h1>🎵 GrooveCore MIDI Export Validation Test</h1>
+  
+  <div class="test-section">
+    <h2>📋 Test Status</h2>
+    <div id="testResults"></div>
+    <button onclick="runAllTests()">Run All Tests</button>
+    <button onclick="testMidiExport()" class="midi-button">Test MIDI Export</button>
+    <button onclick="clearResults()">Clear Results</button>
+  </div>
+
+  <div class="test-section">
+    <h2>🔧 MIDI Library Status</h2>
+    <div id="libraryStatus"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>🎛️ Pattern Data Test</h2>
+    <div id="patternData"></div>
+    <button onclick="generateTestPattern()">Generate Test Pattern</button>
+  </div>
+
+  <div class="test-section">
+    <h2>📁 MIDI File Output</h2>
+    <div id="midiOutput"></div>
+  </div>
+
+  <script>
+    // Test pattern data structure (simulating GrooveCore pattern)
+    let testPattern = {
+      name: "Test Pattern",
+      sequence: []
+    };
+
+    // Master MIDI mapping (GM Standard) - matches GrooveCore exactly
+    const instrumentToMidiMap = {
+      bd: 36,        // Bass Drum → GM: Bass Drum 1 (C1)
+      sd: 38,        // Snare Drum → GM: Acoustic Snare (D1)
+      rim: 37,       // Rim Shot → GM: Side Stick (C#1)
+      hc: 42,        // Hi-Hat Closed → GM: Closed Hi-Hat (F#1)
+      mc: 44,        // Hi-Hat Mid → GM: Pedal Hi-Hat (G#1)
+      lc: 46,        // Hi-Hat Open (LC) → GM: Open Hi-Hat (A#1)
+      oh: 46,        // Open Hat (OH) → GM: Open Hi-Hat (A#1)
+      lt: 45,        // Low Tom → GM: Low Tom (A1)
+      mt: 47,        // Mid Tom → GM: Low-Mid Tom (B1)
+      ht: 50,        // High Tom → GM: High Tom (D2)
+      cr: 49,        // Crash → GM: Crash Cymbal 1 (C#2)
+      cym: 57,       // Cymbal → GM: Crash Cymbal 2 (A2)
+      ch: 39,        // Clap → GM: Hand Clap (D#1)
+      cb: 56,        // Cowbell → GM: Cowbell (G#2)
+      cl: 75,        // Clave → GM: Claves (D#4)
+      ma: 70,        // Maraca → GM: Maracas (A#3)
+      accent: 40     // Accent → GM: Electric Snare (E1)
+    };
+
+    function addTestResult(message, type = 'info') {
+      const results = document.getElementById('testResults');
+      const div = document.createElement('div');
+      div.className = `test-result ${type}`;
+      div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+      results.appendChild(div);
+      results.scrollTop = results.scrollHeight;
+    }
+
+    function clearResults() {
+      document.getElementById('testResults').innerHTML = '';
+      document.getElementById('midiOutput').innerHTML = '';
+    }
+
+    function checkLibraryStatus() {
+      const status = document.getElementById('libraryStatus');
+      let html = '';
+      
+      if (typeof MidiWriter !== 'undefined') {
+        html += '<div class="test-result pass">✅ MidiWriter library loaded successfully</div>';
+        html += `<div class="test-result info">📦 Version: ${MidiWriter.version || 'Unknown'}</div>`;
+        html += '<div class="test-result info">🔧 Available classes: ' + Object.keys(MidiWriter).join(', ') + '</div>';
+      } else {
+        html += '<div class="test-result fail">❌ MidiWriter library not loaded</div>';
+      }
+      
+      status.innerHTML = html;
+    }
+
+    function generateTestPattern() {
+      // Create a simple test pattern with basic drums
+      testPattern = {
+        name: "MIDI Export Test Pattern",
+        sequence: [
+          { instrument: 'bd', beat: 1.0, velocity: 100 },
+          { instrument: 'ch', beat: 1.25, velocity: 80 },
+          { instrument: 'sd', beat: 2.0, velocity: 110 },
+          { instrument: 'ch', beat: 2.25, velocity: 75 },
+          { instrument: 'bd', beat: 3.0, velocity: 95 },
+          { instrument: 'ch', beat: 3.25, velocity: 85 },
+          { instrument: 'sd', beat: 4.0, velocity: 105 },
+          { instrument: 'oh', beat: 4.5, velocity: 90 }
+        ]
+      };
+
+      const output = document.getElementById('patternData');
+      output.innerHTML = `
+        <div class="test-result pass">✅ Test pattern generated</div>
+        <pre>${JSON.stringify(testPattern, null, 2)}</pre>
+      `;
+      
+      addTestResult('Test pattern generated with ' + testPattern.sequence.length + ' events', 'pass');
+    }
+
+    function testMidiExport() {
+      try {
+        if (typeof MidiWriter === 'undefined') {
+          addTestResult('❌ MidiWriter library not available', 'fail');
+          return;
+        }
+
+        if (testPattern.sequence.length === 0) {
+          generateTestPattern();
+        }
+
+        addTestResult('🎵 Starting MIDI export test...', 'info');
+
+        // Create MIDI writer
+        const writer = new MidiWriter.Writer();
+        const track = new MidiWriter.Track();
+
+        // Add track metadata
+        track.addEvent(new MidiWriter.MetaEvent({
+          type: 'trackName',
+          text: testPattern.name
+        }));
+
+        // Set tempo (120 BPM)
+        track.addEvent(new MidiWriter.MetaEvent({
+          type: 'setTempo',
+          tempo: 120
+        }));
+
+        // Set time signature (4/4)
+        track.addEvent(new MidiWriter.MetaEvent({
+          type: 'timeSignature',
+          numerator: 4,
+          denominator: 4,
+          clocksPerClick: 24,
+          thirtySecondNotesPerBeat: 8
+        }));
+
+        // Set drum kit on channel 10
+        track.addEvent(new MidiWriter.ProgramChangeEvent({
+          instrument: 0,
+          channel: 9
+        }));
+
+        // Sort events by beat time
+        const sortedSequence = testPattern.sequence.sort((a, b) => a.beat - b.beat);
+        
+        // Add note events
+        let currentTick = 0;
+        const ticksPerBeat = 480;
+
+        sortedSequence.forEach((event, index) => {
+          const midiNote = instrumentToMidiMap[event.instrument];
+          const velocity = Math.min(127, Math.max(1, event.velocity));
+          
+          const eventTick = Math.round((event.beat - 1) * ticksPerBeat);
+          const deltaTime = eventTick - currentTick;
+          
+          const noteEvent = new MidiWriter.NoteEvent({
+            pitch: [midiNote],
+            duration: '16',
+            velocity: velocity,
+            channel: 9,
+            wait: deltaTime > 0 ? deltaTime : 0
+          });
+          
+          track.addEvent(noteEvent);
+          currentTick = eventTick;
+          
+          addTestResult(`✅ Added ${event.instrument} (MIDI note ${midiNote}) at beat ${event.beat} with velocity ${velocity}`, 'pass');
+        });
+
+        // Add end of track
+        track.addEvent(new MidiWriter.MetaEvent({ type: 'endOfTrack' }));
+        
+        // Add track to writer
+        writer.addTrack(track);
+        
+        // Generate MIDI file
+        const midiData = writer.buildFile();
+        
+        // Create download
+        const blob = new Blob([new Uint8Array(midiData)], { type: 'audio/midi' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `groovecore-midi-test-${Date.now()}.mid`;
+        
+        // Show download link
+        const output = document.getElementById('midiOutput');
+        output.innerHTML = `
+          <div class="test-result pass">✅ MIDI file generated successfully!</div>
+          <div class="test-result info">📁 File size: ${midiData.length} bytes</div>
+          <div class="test-result info">🎵 Contains ${sortedSequence.length} note events</div>
+          <button onclick="document.querySelector('a[download*=\\"groovecore-midi-test\\"]').click()">📥 Download MIDI File</button>
+        `;
+        output.appendChild(a);
+        
+        addTestResult(`✅ MIDI export successful! Generated ${midiData.length} bytes`, 'pass');
+        
+        // Auto-download for testing
+        a.click();
+        
+        // Clean up
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+        }, 1000);
+
+      } catch (error) {
+        addTestResult(`❌ MIDI export failed: ${error.message}`, 'fail');
+        console.error('MIDI export error:', error);
+      }
+    }
+
+    function runAllTests() {
+      clearResults();
+      addTestResult('🚀 Starting comprehensive MIDI export validation...', 'info');
+      
+      // Test 1: Library availability
+      if (typeof MidiWriter !== 'undefined') {
+        addTestResult('✅ Test 1: MidiWriter library is available', 'pass');
+      } else {
+        addTestResult('❌ Test 1: MidiWriter library is NOT available', 'fail');
+        return;
+      }
+
+      // Test 2: Basic classes
+      try {
+        const writer = new MidiWriter.Writer();
+        const track = new MidiWriter.Track();
+        addTestResult('✅ Test 2: MidiWriter classes can be instantiated', 'pass');
+      } catch (error) {
+        addTestResult(`❌ Test 2: Cannot instantiate MidiWriter classes: ${error.message}`, 'fail');
+        return;
+      }
+
+      // Test 3: Instrument mapping
+      const mappingErrors = [];
+      Object.keys(instrumentToMidiMap).forEach(instrument => {
+        const midiNote = instrumentToMidiMap[instrument];
+        if (midiNote < 1 || midiNote > 127) {
+          mappingErrors.push(`${instrument}: ${midiNote}`);
+        }
+      });
+      
+      if (mappingErrors.length === 0) {
+        addTestResult(`✅ Test 3: All ${Object.keys(instrumentToMidiMap).length} instrument mappings are valid`, 'pass');
+      } else {
+        addTestResult(`❌ Test 3: Invalid MIDI note mappings: ${mappingErrors.join(', ')}`, 'fail');
+      }
+
+      // Test 4: Pattern generation
+      generateTestPattern();
+      addTestResult('✅ Test 4: Test pattern generated successfully', 'pass');
+
+      // Test 5: Full MIDI export
+      testMidiExport();
+      
+      addTestResult('🏁 All tests completed!', 'info');
+    }
+
+    // Initialize on page load
+    window.onload = function() {
+      checkLibraryStatus();
+      addTestResult('🔄 MIDI Export Test Suite initialized', 'info');
+      addTestResult('Click "Run All Tests" to validate MIDI export functionality', 'info');
+    };
+  </script>
+</body>
+</html>

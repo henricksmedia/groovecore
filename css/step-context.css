@@ -1,0 +1,143 @@
+/* =============================================================================
+   GrooveCore step context menu + FX badges (WS-H)
+   Companion to js/ui/step-context.js. Requires css/tokens.css.
+   ============================================================================= */
+
+/* ---- FX badge on steps carrying ratchet/flam/probability ------------------ */
+.step-button[data-fx]::after {
+  content: attr(data-fx);
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  padding: 0 3px;
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--gc-808-yellow);
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+/* ---- Popover --------------------------------------------------------------- */
+#gc-step-menu {
+  position: fixed;
+  z-index: var(--z-modal);
+  min-width: 216px;
+  background: var(--gc-surface-2);
+  border: 1px solid var(--gc-border-strong);
+  border-radius: var(--gc-radius-lg);
+  box-shadow: var(--gc-shadow-2);
+  padding: var(--gc-space-2);
+  animation: gc-sc-in var(--gc-dur-fast) var(--gc-ease);
+}
+
+@keyframes gc-sc-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.gc-sc-title {
+  color: var(--gc-orange);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 6px 6px;
+}
+
+.gc-sc-sep {
+  height: 1px;
+  background: var(--gc-border);
+  margin: var(--gc-space-1) 0;
+}
+
+.gc-sc-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  flex-wrap: wrap;
+}
+
+.gc-sc-label {
+  color: var(--gc-text-faint);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  min-width: 48px;
+}
+
+/* Full-width row items (velocity tiers, clear) */
+.gc-sc-item {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: transparent;
+  color: var(--gc-text);
+  border: 1px solid transparent;
+  border-radius: var(--gc-radius-md);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.gc-sc-item span {
+  color: var(--gc-text-faint);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.gc-sc-item:hover,
+.gc-sc-item:focus-visible {
+  background: var(--gc-orange-tint);
+  border-color: var(--gc-orange);
+}
+.gc-sc-item.gc-checked {
+  border-color: var(--gc-orange);
+  background: var(--gc-orange-tint);
+}
+.gc-sc-item.gc-checked span {
+  color: var(--gc-orange);
+}
+
+.gc-sc-danger {
+  color: var(--gc-danger);
+  justify-content: center;
+}
+.gc-sc-danger:hover,
+.gc-sc-danger:focus-visible {
+  background: rgba(217, 43, 43, 0.12);
+  border-color: var(--gc-danger);
+}
+
+/* Compact chip options (ratchet / flam / probability) */
+.gc-sc-chip {
+  padding: 3px 9px;
+  background: var(--gc-surface-3);
+  color: var(--gc-text-dim);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-pill);
+  font-size: 11px;
+  cursor: pointer;
+}
+.gc-sc-chip:hover,
+.gc-sc-chip:focus-visible {
+  border-color: var(--gc-orange);
+  color: var(--gc-text);
+}
+.gc-sc-chip.gc-checked {
+  background: var(--gc-orange);
+  border-color: var(--gc-orange);
+  color: var(--gc-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #gc-step-menu {
+    animation: none;
+  }
+}

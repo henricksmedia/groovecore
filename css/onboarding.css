@@ -1,0 +1,90 @@
+/* =============================================================================
+   GrooveCore onboarding coach marks (WS-H)
+   Companion to js/ui/onboarding.js. Requires css/tokens.css.
+   ============================================================================= */
+
+#gc-onboarding {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  pointer-events: none; /* the app stays fully usable behind the tips */
+}
+
+#gc-onboarding .gc-coach-tip {
+  position: fixed;
+  pointer-events: auto;
+  background: var(--gc-surface-2);
+  border: 1px solid var(--gc-orange);
+  border-radius: var(--gc-radius-lg);
+  box-shadow: var(--gc-shadow-2), 0 0 18px var(--gc-orange-glow);
+  padding: var(--gc-space-3) var(--gc-space-4);
+  animation: gc-coach-in var(--gc-dur-med) var(--gc-ease);
+}
+
+@keyframes gc-coach-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#gc-onboarding .gc-coach-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--gc-space-2);
+}
+
+#gc-onboarding .gc-coach-step {
+  color: var(--gc-orange);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+#gc-onboarding .gc-coach-skip {
+  background: none;
+  border: none;
+  color: var(--gc-text-faint);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+#gc-onboarding .gc-coach-skip:hover {
+  color: var(--gc-text);
+  text-decoration: underline;
+}
+
+#gc-onboarding .gc-coach-title {
+  color: var(--gc-text);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: var(--gc-space-1);
+}
+
+#gc-onboarding .gc-coach-body {
+  color: var(--gc-text-dim);
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: var(--gc-space-3);
+}
+
+#gc-onboarding .gc-coach-next {
+  display: inline-block;
+  padding: 6px 18px;
+  background: var(--gc-orange);
+  color: var(--gc-text);
+  border: none;
+  border-radius: var(--gc-radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--gc-dur-fast) var(--gc-ease);
+}
+#gc-onboarding .gc-coach-next:hover {
+  background: var(--gc-orange-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #gc-onboarding .gc-coach-tip {
+    animation: none;
+  }
+}

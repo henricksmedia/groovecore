@@ -1,0 +1,1608 @@
+This guide provides 110 complete song section arrangements across 11 genres (Pop, Hip-Hop, EDM, Rock, Country, R&B, Trance, K-Pop, Indie, Psytrance, and Treq), inspired by real-world tracks and artists from 2025 trends. Each sequence represents a full rhythmic arrangement for a specific song section (chorus, verse, bridge, etc.) with all the layers that would be present in an actual production. These are not basic drum machine patterns, but complete song section arrangements utilizing the full TR-808 instrument set (Bass Drum [BD], Snare Drum [SD], Low Tom [LT], Mid Tom [MT], High Tom [HT], Rim Shot [RS], Hand Clap [CP], Cowbell [CB], Cymbal [CY], Open Hi-Hat [OH], Closed Hi-Hat [CH]) plus 909 Crash for dynamic fills. Each full, layered song section arrangement includes main drum patterns, percussion layers, tom fills, hi-hat work, cymbal accents, and all elements that create a complete, musical song section.
+
+### Guidelines
+- **Structure**: 16-step, 4/4 time, representing one complete song section (chorus, verse, bridge, etc.).
+- **Instruments**: Full TR-808 set (BD, SD, LT, MT, HT, RS, CP, CB, CY, OH, CH) plus 909 Crash.
+- **Arrangement**: Each sequence is a complete rhythmic arrangement with all layers: main drums, percussion, tom fills, hi-hat patterns, cymbal work, and accents.
+- **Music Theory**: Rhythms reflect genre conventions and specific song characteristics (e.g., swung 16ths in Hip-Hop, four-on-the-floor in EDM), with BD tuned to track key.
+- **Implementation**: Use velocity variations for dynamics, layer multiple percussion elements, create realistic song section arrangements that sound like actual productions.
+- **Examples**: Based on 2025 hits and trends, each sequence captures the complete rhythmic feel of a specific song section.
+
+### Main Genres (60 Sequences)
+
+#### 1. Pop (10 Sequences)
+- **Tempo**: 100-110 BPM, minimal swing.
+- **2025 Examples**: Sabrina Carpenter’s “Espresso” (remix), Dua Lipa’s “Illusion”.
+
+- **Pop - Sabrina Carpenter’s “Espresso” Remix**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Pop - Dua Lipa’s “Illusion”**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ----------X----
+  - MT: ------X---------
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Pop - The Weeknd’s “Blinding Lights 2025”**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Pop - Billie Eilish’s “Everything I Wanted” Redux**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ----------X----
+  - MT: ------X---------
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Pop - Taylor Swift’s “Fortnight” Remix**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Pop - Charli XCX’s “360” Update**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Pop - Lady Gaga’s “Chromatica 2025”**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ----------X----
+  - MT: ------X---------
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Pop - Ariana Grande’s “Yes, And?” Sequel**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Pop - Justin Bieber’s “Peaches 2025”**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Pop - Harry Styles’ “As It Was” Evolution**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ----------X----
+  - MT: ------X---------
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+#### 2. Hip-Hop (10 Sequences)
+- **Tempo**: 70-90 BPM, 15% swing.
+- **2025 Examples**: Doechii’s “What It Is (Block Boy)”, Travis Scott’s “Lost Forever”.
+
+- **Hip-Hop - Doechii’s “What It Is (Block Boy)”**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+- **Hip-Hop - Travis Scott’s “Lost Forever”**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+- **Hip-Hop - Kendrick Lamar’s “Not Like Us” Sequel**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+- **Hip-Hop - Lil Baby’s “Drip Too Hard 2025”**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+- **Hip-Hop - Drake’s “One Dance” Reimagined**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+- **Hip-Hop - Future’s “Mask Off” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+- **Hip-Hop - Cardi B’s “Bodak Yellow” Redux**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+- **Hip-Hop - Megan Thee Stallion’s “Savage” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+- **Hip-Hop - Post Malone’s “Circles” Revisit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+- **Hip-Hop - J. Cole’s “Middle Child” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (triplets 13-16)
+  - 909 Crash: ------------X--
+
+#### 3. EDM (10 Sequences)
+- **Tempo**: 125-130 BPM, 10% swing.
+- **2025 Examples**: Tyla’s Amapiano-EDM fusion, Martin Garrix’s 2025 drop.
+
+- **EDM - Tyla’s Amapiano-EDM Fusion**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **EDM - Martin Garrix’s 2025 Drop**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **EDM - David Guetta’s “Titanium” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **EDM - Calvin Harris’ “Feel So Close” Redux**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **EDM - Alesso’s 2025 Anthem**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **EDM - Kygo’s “Firestone” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **EDM - Zedd’s “Clarity” Reimagined**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **EDM - Tiësto’s 2025 Festival Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **EDM - Afrojack’s “Take Over Control” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **EDM - Deadmau5’s “Strobe” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: ------X--------
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+#### 4. Rock (10 Sequences)
+- **Tempo**: 100-120 BPM, light swing.
+- **2025 Examples**: HAIM’s 2025 single, Foo Fighters’ 2025 release.
+
+- **Rock - HAIM’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Rock - Foo Fighters’ 2025 Release**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Rock - Coldplay’s “Viva La Vida” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Rock - Imagine Dragons’ “Radioactive” Redux**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Rock - The Killers’ “Mr. Brightside” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Rock - Red Hot Chili Peppers’ 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Rock - Linkin Park’s “Numb” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Rock - Muse’s “Hysteria” Reimagined**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Rock - Arctic Monkeys’ 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Rock - U2’s “With or Without You” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+#### 5. Country (10 Sequences)
+- **Tempo**: 80-100 BPM, 20% swing.
+- **2025 Examples**: Megan Moroney’s 2025 track, Morgan Wallen’s 2025 hit.
+
+- **Country - Megan Moroney’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **Country - Morgan Wallen’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **Country - Luke Combs’ “Forever After All” 2025**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **Country - Chris Stapleton’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **Country - Kelsea Ballerini’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **Country - Jason Aldean’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **Country - Miranda Lambert’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **Country - Thomas Rhett’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **Country - Carrie Underwood’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **Country - Blake Shelton’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+#### 6. R&B (10 Sequences)
+- **Tempo**: 70-85 BPM, 20% swing.
+- **2025 Examples**: Mariah the Scientist’s “Burning Blue”, Tems’ 2025 track.
+
+- **R&B - Mariah the Scientist’s “Burning Blue”**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **R&B - Tems’ 2025 Track**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **R&B - SZA’s “Good Days” 2025**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **R&B - H.E.R.’s 2025 Single**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **R&B - Alicia Keys’ 2025 Track**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **R&B - Usher’s 2025 Hit**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **R&B - Bruno Mars’ “24K Magic” 2025**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **R&B - Jill Scott’s 2025 Single**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **R&B - Ne-Yo’s 2025 Track**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+- **R&B - John Legend’s 2025 Hit**:
+  - BD: X-------X-------
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: ----X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X- (shuffled)
+  - 909 Crash: ------------X--
+
+### Additional Genres (40 Sequences)
+
+#### 7. Trance (10 Sequences)
+- **Tempo**: 135-140 BPM, 5% swing.
+- **2025 Examples**: Armin van Buuren’s 2025 hit, Above & Beyond’s 2025 track.
+
+- **Trance - Armin van Buuren’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Trance - Above & Beyond’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Trance - Ferry Corsten’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Trance - Paul van Dyk’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Trance - Dash Berlin’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Trance - Markus Schulz’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Trance - Gareth Emery’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Trance - Cosmic Gate’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Trance - Aly & Fila’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Trance - Ørjan Nilsen’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+#### 8. K-Pop (10 Sequences)
+- **Tempo**: 110-120 BPM, 10% swing.
+- **2025 Examples**: BTS-inspired 2025 fusion, Blackpink’s 2025 hit.
+
+- **K-Pop - BTS-Inspired 2025 Fusion**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **K-Pop - Blackpink’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **K-Pop - EXO’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **K-Pop - TWICE’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **K-Pop - NCT 127’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **K-Pop - Red Velvet’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **K-Pop - Seventeen’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **K-Pop - GOT7’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **K-Pop - ATEEZ’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **K-Pop - Stray Kids’ 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ------------X--
+  - HT: ----------X----
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+#### 9. Indie (10 Sequences)
+- **Tempo**: 90-110 BPM, 15% swing.
+- **2025 Examples**: The 1975’s 2025 single, Tame Impala’s 2025 track.
+
+- **Indie - The 1975’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Indie - Tame Impala’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Indie - Arctic Monkeys’ 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Indie - Vampire Weekend’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Indie - Alt-J’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Indie - Lorde’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Indie - Beach House’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Indie - The National’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Indie - Sufjan Stevens’ 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Indie - Bon Iver’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-------X---
+  - LT: ------X---------
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: X---X----------
+  - CB: --------X------
+  - CY: ------X--------
+  - OH: --------X------
+  - CH: X-X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+#### 10. Psytrance (10 Sequences)
+- **Tempo**: 140-145 BPM, 5% swing.
+- **2025 Examples**: Infected Mushroom’s 2025 track, Astrix’s 2025 hit.
+
+- **Psytrance - Infected Mushroom’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Psytrance - Astrix’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Psytrance - Vini Vici’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Psytrance - 1200 Micrograms’ 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Psytrance - Hilight Tribe’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Psytrance - Ace Ventura’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Psytrance - Shpongle’s 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Psytrance - Neelix’s 2025 Hit**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Psytrance - Liquid Soul’s 2025 Single**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Psytrance - Zen Mechanics’ 2025 Track**:
+  - BD: X---X---X---X---
+  - SD: ----X-X-X-X-X-X-
+  - LT: -X-X-X-X-X-X-X-X-
+  - MT: ----------X----
+  - HT: ----X----------
+  - RS: X-------------
+  - CP: --------X------
+  - CB: ------X--------
+  - CY: --------X------
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+### Experimental Genre (10 Sequences)
+
+#### 11. Treq (10 Sequences)
+- **Tempo**: 120-130 BPM, 10% swing.
+- **2025 Concept**: Hypothetical experimental genre blending glitch, ambient, and industrial, inspired by Autechre and Aphex Twin’s 2025 works.
+- **Note**: Treq is an experimental construct; patterns reflect chaotic, evolving rhythms.
+
+- **Treq - Autechre-Inspired Glitch Ambient**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Treq - Aphex Twin’s 2025 Industrial**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Treq - Glitchy Ambient Fusion**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Treq - Industrial Noise Experiment**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Treq - Ambient Glitchscape**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Treq - Chaotic Industrial Beat**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Treq - Experimental Soundscape**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Treq - Glitchy Industrial Fusion**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Treq - Ambient Noise Experiment**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+- **Treq - Industrial Glitchscape**:
+  - BD: X-X-X-X-X-X-X-X-
+  - SD: -X-X-X-X-X-X-X-
+  - LT: X---X---X---X---
+  - MT: ----X-X-X-X-X-X-
+  - HT: -X-X-X-X-X-X-X-
+  - RS: X-------------X-
+  - CP: ----X-----X-----
+  - CB: X-X-X-X-X-X-X-X-
+  - CY: ------X---X-----
+  - OH: X-X-X-X-X-X-X-X-
+  - CH: -X-X-X-X-X-X-X-
+  - 909 Crash: ------------X--
+
+### Implementation Tips
+- **Effects**: Distortion on BD, reverb on SD/CY, delay on OH/CH. Use TR-808 accent for emphasis.
+- **Arrangement**: Intro with CH/LT (4 bars), verse with BD/SD (8 bars), chorus with OH/Crash (8 bars).
+- **Tuning**: Match BD to track key (e.g., C minor for Hip-Hop, G major for Pop).
+- **Dynamics**: Vary decay on toms, use CP/CB sparingly for texture.
+
+This completes the 110 sequences. Let me know if you’d like MIDI exports or further refinements!

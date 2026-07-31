@@ -1,0 +1,170 @@
+/* =============================================================================
+   GrooveCore mobile / touch overrides (WS-H)
+   Loaded after styles.css + tokens.css. Companion to js/ui/mobile.js.
+   ============================================================================= */
+
+/* ---- Touch drag never scrolls the page while turning a control ------------ */
+.knob,
+.volume-slider,
+.shuffle-slider {
+  touch-action: none;
+}
+
+/* ===========================================================================
+   Below 1024px: ONE horizontal scroll surface.
+   styles.css / Tailwind gives every row its own max-lg:overflow-x-auto, so 17
+   rows scroll independently. Override each row back to visible and make the
+   whole sequencer panel the single scroller, with instrument labels pinned.
+   =========================================================================== */
+@media (max-width: 1023.98px) {
+  /* The scroll surface is the .gc-grid-scroll wrapper injected by mobile.js
+     (falls back to the panel itself if the wrapper is absent) */
+  .step-sequencer-panel .gc-grid-scroll,
+  .step-sequencer-panel:not(:has(.gc-grid-scroll)) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .step-sequencer-panel .pattern-labels,
+  .step-sequencer-panel .instrument-row {
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    min-width: max-content !important;
+    width: max-content !important;
+  }
+
+  /* Labels pinned while steps scroll underneath */
+  .step-sequencer-panel .instrument-name,
+  .step-sequencer-panel .pattern-labels .instrument-label {
+    position: sticky !important;
+    left: 0;
+    z-index: 5;
+    background: var(--gc-surface-1);
+    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.45);
+  }
+
+  /* The expanded per-row control drawer must not break the sticky column */
+  .step-sequencer-panel .instrument-controls {
+    z-index: 6;
+  }
+
+  /* Bigger mute/solo targets with expanded (invisible) hit areas */
+  .mute-btn,
+  .solo-btn {
+    min-width: 28px !important;
+    min-height: 28px !important;
+    font-size: 12px !important;
+    position: relative;
+  }
+  .mute-btn::after,
+  .solo-btn::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+
+  .sticky-bottom-section .master-controls {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ---- Deck stays one row at EVERY width: groove/FX knobs live behind the
+   GROOVE toggle (shell redesign) ---- */
+.sticky-bottom-section .tab-navigation,
+.sticky-bottom-section .tab-content {
+  display: none !important;
+}
+.sticky-bottom-section.gc-expanded .tab-navigation {
+  display: flex !important;
+}
+.sticky-bottom-section.gc-expanded .tab-content.active {
+  display: block !important;
+}
+
+/* Expander toggle injected by js/ui/mobile.js */
+#gc-groove-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 6px 10px;
+    min-height: 34px;
+    background: var(--gc-surface-3);
+    color: var(--gc-text);
+    border: 1px solid var(--gc-border-strong);
+    border-radius: var(--gc-radius-md);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color var(--gc-dur-fast) var(--gc-ease);
+  }
+  #gc-groove-toggle:hover,
+  #gc-groove-toggle[aria-expanded="true"] {
+    border-color: var(--gc-orange);
+  }
+  #gc-groove-toggle .gc-caret {
+    transition: transform var(--gc-dur-fast) var(--gc-ease);
+  }
+  #gc-groove-toggle[aria-expanded="true"] .gc-caret {
+    transform: rotate(180deg);
+  }
+
+/* Transport row (PLAY/REC/MIDI IN/CLEAR/?/A-B): first line of the bottom deck,
+   its own row at every width so it can never collide with the knob row. */
+.bottom-panel .gc-transport {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 4px 8px 6px;
+  border-bottom: 1px solid var(--gc-border-strong, #333);
+  margin-bottom: 4px;
+}
+
+/* ===========================================================================
+   Below 768px: real touch targets + type floor.
+   =========================================================================== */
+@media (max-width: 767.98px) {
+  /* 44px step buttons on a 40px-minimum column grid (overrides the Tailwind
+     arbitrary grid-template classes on both the labels row and each row). */
+  .step-sequencer-panel .pattern-labels,
+  .step-sequencer-panel .instrument-row {
+    grid-template-columns: 112px repeat(16, minmax(40px, 1fr)) 36px !important;
+  }
+
+  .step-button {
+    min-height: 44px !important;
+    height: 44px !important;
+    min-width: 40px;
+  }
+
+  /* Thin accent row still gets a usable target on touch */
+  .instrument-row[data-instrument="accent"] .step-button {
+    min-height: 28px !important;
+    height: 28px !important;
+  }
+
+  /* 11px type floor — styles.css drops several of these to 8-9px */
+  .step-button,
+  .pattern-label,
+  .knob-label,
+  .control-label,
+  .mute-btn,
+  .solo-btn,
+  .instrument-name span,
+  .action-btn,
+  .rhythm-btn,
+  .tab-btn,
+  .bpm-unit {
+    font-size: max(11px, 1em);
+  }
+  .sticky-bottom-section .knob-label,
+  .sticky-bottom-section .rhythm-btn {
+    font-size: 11px !important;
+  }
+}
