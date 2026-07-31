@@ -12,7 +12,7 @@
 // =============================================================================
 
 export const PRESET_META = [
-  // ===== Styles (88) ========================================================
+  // ===== Styles (103) ========================================================
   { kind: 'style', key: 'treq',                 label: 'Misty Folktronica',       emoji: '🌲', bpm: 92,  genre: 'Treq' },
   { kind: 'style', key: 'treq_empire',          label: 'Cinematic Tribal',        emoji: '🥁', bpm: 100, genre: 'Treq' },
   { kind: 'style', key: 'treq_synthpop',        label: 'Warm Synthpop',           emoji: '🎹', bpm: 104, genre: 'Treq' },
@@ -51,12 +51,27 @@ export const PRESET_META = [
   { kind: 'style', key: 'triphop_ghost',        label: 'Lazy Ghost Groove',       emoji: '👻', bpm: 76,  genre: 'Trip Hop' },
   { kind: 'style', key: 'triphop_noir',         label: 'Syncopated Noir',         emoji: '🕶️', bpm: 72,  genre: 'Trip Hop' },
   { kind: 'style', key: 'triphop_doublekick',   label: 'Double-Kick Downtempo',   emoji: '👟', bpm: 80,  genre: 'Trip Hop' },
-  { kind: 'style', key: 'triphop_ambient',      label: 'Ambient Shuffle',         emoji: '🌫️', bpm: 70,  genre: 'Trip Hop' },
+  { kind: 'style', key: 'triphop_ambient',      label: 'Ambient Smoke Shuffle',   emoji: '🌫️', bpm: 70,  genre: 'Trip Hop' },
   { kind: 'style', key: 'psybient_shamanic',    label: 'Shamanic Pulse',          emoji: '🔮', bpm: 96,  genre: 'Psybient' },
   { kind: 'style', key: 'psybient_mirage',      label: 'Mirage Echo',             emoji: '🏜️', bpm: 92,  genre: 'Psybient' },
   { kind: 'style', key: 'psybient_soma',        label: 'Soma Cascade',            emoji: '🌀', bpm: 104, genre: 'Psybient' },
   { kind: 'style', key: 'psybient_ether',       label: 'Ether Drone',             emoji: '🫧', bpm: 90,  genre: 'Psybient' },
   { kind: 'style', key: 'psybient_chrysalis',   label: 'Chrysalis Journey',       emoji: '🦋', bpm: 100, genre: 'Psybient' },
+  { kind: 'style', key: 'reggae_king_tubby',    label: 'King Tubby Drop',         emoji: '👑', bpm: 76,  genre: 'Reggae' },
+  { kind: 'style', key: 'reggae_zion_stepper',  label: 'Zion Stepper',            emoji: '✊', bpm: 84,  genre: 'Reggae' },
+  { kind: 'style', key: 'reggae_rockers',       label: 'Rockers Skank',           emoji: '🎸', bpm: 88,  genre: 'Reggae' },
+  { kind: 'style', key: 'reggae_echo_chamber',  label: 'Echo Chamber',            emoji: '📡', bpm: 72,  genre: 'Reggae' },
+  { kind: 'style', key: 'reggae_black_ark',     label: 'Black Ark Groove',        emoji: '🖤', bpm: 80,  genre: 'Reggae' },
+  { kind: 'style', key: 'garage_london_bounce', label: 'London Bounce',           emoji: '🏙️', bpm: 132, genre: 'Garage' },
+  { kind: 'style', key: 'garage_so_solid',      label: 'So Solid Skip',           emoji: '⚡', bpm: 134, genre: 'Garage' },
+  { kind: 'style', key: 'garage_ghost_sub',     label: 'Ghost Sub-Avenue',        emoji: '👻', bpm: 130, genre: 'Garage' },
+  { kind: 'style', key: 'garage_sidewinder',    label: 'Sidewinder Swing',        emoji: '🐍', bpm: 133, genre: 'Garage' },
+  { kind: 'style', key: 'garage_elb',           label: 'El-B Fluidity',           emoji: '🎷', bpm: 131, genre: 'Garage' },
+  { kind: 'style', key: 'idm_warp_matrix',      label: 'Warp Matrix',             emoji: '🧮', bpm: 110, genre: 'IDM' },
+  { kind: 'style', key: 'idm_clicks_cuts',      label: 'Clicks & Cuts',           emoji: '✂️', bpm: 95,  genre: 'IDM' },
+  { kind: 'style', key: 'idm_squarepusher',     label: 'Squarepusher Shrapnel',   emoji: '💥', bpm: 118, genre: 'IDM' },
+  { kind: 'style', key: 'idm_kinetic',          label: 'Kinetic Fractured',       emoji: '⚙️', bpm: 105, genre: 'IDM' },
+  { kind: 'style', key: 'idm_venetian',         label: 'Venetian Stutter',        emoji: '🎭', bpm: 100, genre: 'IDM' },
   { kind: 'style', key: 'trap',                 label: 'Trap',                    emoji: '🔥', bpm: 140, genre: 'Trap' },
   { kind: 'style', key: 'classic808',           label: 'Classic 808',             emoji: '🎵', bpm: 110, genre: 'Hip-Hop' },
   { kind: 'style', key: 'drill',                label: 'Drill',                   emoji: '⚡', bpm: 150, genre: 'Trap' },

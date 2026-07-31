@@ -1506,14 +1506,15 @@ function loadStylePreset(styleName) {
   
   
   // Load preset patterns - Fixed logic for A/B structure
+  // Values: 1 / true = default hit; number 1–127 = per-step velocity (ghost notes, etc.)
   Object.entries(preset.patterns).forEach(([instrument, patternArray]) => {
     patternArray.forEach((hit, stepIndex) => {
-      if (hit === 1 && stepIndex < 16) {
-        // Ensure the step object exists
-        if (!pattern.part1[stepIndex]) {
-          pattern.part1[stepIndex] = {};
-        }
+      if (!hit || stepIndex >= 16) return;
+      if (!pattern.part1[stepIndex]) pattern.part1[stepIndex] = {};
+      if (hit === true || hit === 1) {
         pattern.part1[stepIndex][instrument] = true;
+      } else if (typeof hit === 'number' && hit > 0) {
+        pattern.part1[stepIndex][instrument] = Math.max(1, Math.min(127, Math.round(hit)));
       }
     });
   });
