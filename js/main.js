@@ -17,7 +17,7 @@
 // Asset version: bump on every deploy (and mirror in index.html's ?v= tags +
 // sw.js CACHE name) so browsers pick up new module/CSS code on a normal
 // reload instead of serving heuristically-cached copies.
-const ASSET_V = 'gc10';
+const ASSET_V = 'gc12';
 
 const MODULES = [
   '/js/ui/ui-kit.js',

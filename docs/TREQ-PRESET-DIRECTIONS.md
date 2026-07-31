@@ -47,3 +47,19 @@ treq_noise_floor.
 | 23 | Slag Forge | industrial techno foundry, kick with 16th pickups into 2&4, hard clap backbeat, scrap-metal rim, dense hats with open-hat vents, tom anvil strikes, heavier/dirtier than Warehouse Core, saturated drive | 138 |
 | 24 | Aggro Pulse | aggrotech/harsh EBM, pounding 8th-note kicks, hard snare+clap on 2&4 with end-bar fill, machine-gun rim chatter, stutter hats, cowbell stabs, hostile club-weapon, clipped distortion | 145 |
 | 25 | Noise Floor | rhythmic noise/power-noise, irregular kick grid, off-kilter metallic snare, single hard clap, rim scrap lattice, stuttering hats, sparse tom/clave hits, tension over groove, abrasive grit | 132 |
+
+## Trip Hop batch (5)
+
+Grid keys: triphop_bristol, triphop_ghost, triphop_noir, triphop_doublekick,
+triphop_ambient.
+
+Best at 70–85 BPM. Dial swing ~5–6 (DAW-feel ~55–60%) and low-pass the hats to
+strip modern crispness. Dusty, vinyl-sampled kick + laid-back snare/rimshot stack.
+
+| # | Name | Direction | BPM |
+|---|------|-----------|-----|
+| 26 | Bristol Boom-Bap | classic Bristol trip-hop, heavy delayed second kick, lazy 2&4 snare+clap, subdued 8th hats with late open, maraca vinyl dust, Portishead / Massive Attack pocket | 78 |
+| 27 | Lazy Ghost Groove | boom-bap backbone, soft ghost snare on step 6 after the main hit, rolling hypnotic motion, clap only on mains, light offbeat dust — lower step-6 snare velocity | 76 |
+| 28 | Syncopated Noir | dark skippy kick grid, displaced snares, sparse offbeat hats, rim ticks, late clap, clave + distant tom — Mezzanine night-drive under a moody bassline | 72 |
+| 29 | Double-Kick Downtempo | 16th double-kick at bar start drives a slow loop, snare+clap on 2&4, roomy hats, rim answers, DJ Shadow / Unkle walking-tempo push | 80 |
+| 30 | Ambient Shuffle | sparsest trip-hop bed, half-time kick, single late snare, soft early clap, two closed hats + one open, sparse dust + distant tom — leave room for delay, pads, vocal samples | 70 |

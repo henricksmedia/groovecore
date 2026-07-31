@@ -12,7 +12,7 @@
 // =============================================================================
 
 export const PRESET_META = [
-  // ===== Styles (83) ========================================================
+  // ===== Styles (88) ========================================================
   { kind: 'style', key: 'treq',                 label: 'Misty Folktronica',       emoji: '🌲', bpm: 92,  genre: 'Treq' },
   { kind: 'style', key: 'treq_empire',          label: 'Cinematic Tribal',        emoji: '🥁', bpm: 100, genre: 'Treq' },
   { kind: 'style', key: 'treq_synthpop',        label: 'Warm Synthpop',           emoji: '🎹', bpm: 104, genre: 'Treq' },
@@ -47,6 +47,16 @@ export const PRESET_META = [
   { kind: 'style', key: 'treq_slag_forge',      label: 'Slag Forge',              emoji: '🔨', bpm: 138, genre: 'Industrial' },
   { kind: 'style', key: 'treq_aggro_pulse',     label: 'Aggro Pulse',             emoji: '☠️', bpm: 145, genre: 'Industrial' },
   { kind: 'style', key: 'treq_noise_floor',     label: 'Noise Floor',             emoji: '☢️', bpm: 132, genre: 'Industrial' },
+  { kind: 'style', key: 'triphop_bristol',      label: 'Bristol Boom-Bap',        emoji: '🌧️', bpm: 78,  genre: 'Trip Hop' },
+  { kind: 'style', key: 'triphop_ghost',        label: 'Lazy Ghost Groove',       emoji: '👻', bpm: 76,  genre: 'Trip Hop' },
+  { kind: 'style', key: 'triphop_noir',         label: 'Syncopated Noir',         emoji: '🕶️', bpm: 72,  genre: 'Trip Hop' },
+  { kind: 'style', key: 'triphop_doublekick',   label: 'Double-Kick Downtempo',   emoji: '👟', bpm: 80,  genre: 'Trip Hop' },
+  { kind: 'style', key: 'triphop_ambient',      label: 'Ambient Shuffle',         emoji: '🌫️', bpm: 70,  genre: 'Trip Hop' },
+  { kind: 'style', key: 'psybient_shamanic',    label: 'Shamanic Pulse',          emoji: '🔮', bpm: 96,  genre: 'Psybient' },
+  { kind: 'style', key: 'psybient_mirage',      label: 'Mirage Echo',             emoji: '🏜️', bpm: 92,  genre: 'Psybient' },
+  { kind: 'style', key: 'psybient_soma',        label: 'Soma Cascade',            emoji: '🌀', bpm: 104, genre: 'Psybient' },
+  { kind: 'style', key: 'psybient_ether',       label: 'Ether Drone',             emoji: '🫧', bpm: 90,  genre: 'Psybient' },
+  { kind: 'style', key: 'psybient_chrysalis',   label: 'Chrysalis Journey',       emoji: '🦋', bpm: 100, genre: 'Psybient' },
   { kind: 'style', key: 'trap',                 label: 'Trap',                    emoji: '🔥', bpm: 140, genre: 'Trap' },
   { kind: 'style', key: 'classic808',           label: 'Classic 808',             emoji: '🎵', bpm: 110, genre: 'Hip-Hop' },
   { kind: 'style', key: 'drill',                label: 'Drill',                   emoji: '⚡', bpm: 150, genre: 'Trap' },

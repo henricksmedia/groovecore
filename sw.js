@@ -8,7 +8,7 @@
  * breaks later navigations ("loads once, then not again").
  */
 
-const CACHE = 'gc-v8';
+const CACHE = 'gc-v9';
 
 const PRECACHE = [
   // Shell (prefer index.html over "/" — "/" often 301/302 on Pages)

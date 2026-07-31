@@ -4660,8 +4660,8 @@ document.getElementById("tap").addEventListener("click", () => {
 
   // Help modal functionality
   document.getElementById("helpButton").addEventListener("click", () => {
-    const modal = document.getElementById("helpModal");
-    modal.classList.add("show");
+    // Full how-to (chain, export, Suno, etc.) — not the Suno-only section
+    window.open('https://treqmusic.com/tools/groovecore/#guides', '_blank', 'noopener,noreferrer');
   });
 
   document.getElementById("closeModal").addEventListener("click", () => {
