@@ -30,15 +30,15 @@ const INSTRUMENTS = [
  */
 const DEFAULTS = {
     bd: {
-        gain: 0.95, freq: 50, tuneRange: 5,
+        gain: 0.95, freq: 49.5, tuneRange: 5,
         decayRange: [0.15, 2.5],          // Decay knob spec: 0.15–2.5 s
-        toneRange: [200, 4000],           // Tone knob = click band-pass centre
-        pitchEnvOctaves: 2, pitchEnvTime: 0.045,
+        toneRange: [350, 4200],           // post-resonator tone low-pass
+        pitchEnvOctaves: 1, pitchEnvTime: 0.055,
         satAmount: 1.6,
         knobs: { level: 8, tune: 5, decay: 5, tone: 5, snappy: 5, pan: 5, drive: 0, sendRev: 0, sendDly: 0 }
     },
     sd: {
-        gain: 0.8, freq: 185, freq2: 330, tuneRange: 5,
+        gain: 0.8, freq: 173.3, freq2: 336, tuneRange: 5,
         decayRange: [0.08, 0.4],          // body decay
         toneRange: [1200, 8000],          // noise brightness (high-pass corner)
         snappyMax: 1.2,                   // noise gain at snappy = 10

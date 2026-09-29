@@ -17,11 +17,12 @@
 // Asset version: bump on every deploy (and mirror in index.html's ?v= tags +
 // sw.js CACHE name) so browsers pick up new module/CSS code on a normal
 // reload instead of serving heuristically-cached copies.
-const ASSET_V = 'gc22';
+const ASSET_V = 'gc43';
 
 const MODULES = [
   '/js/ui/ui-kit.js',
   '/js/core/schema.js',
+  '/js/ui/playground.js',
   '/js/ui/share.js',
   '/js/ui/autosave.js',
   '/js/ui/history.js',
@@ -40,6 +41,7 @@ const MODULES = [
   '/js/ui/preset-browser.js',
   '/js/ui/a11y.js',
   '/js/ui/mobile.js',
+  '/js/ui/shell-chrome.js',
   '/js/ui/onboarding.js',
   '/js/ui/step-editor.js',
   '/js/ui/step-context.js'
@@ -55,10 +57,12 @@ const STYLESHEETS = [
   'css/polish.css',
   'css/a11y.css',
   'css/mobile.css',
+  'css/playground.css',
   'css/preset-browser.css',
   'css/onboarding.css',
   'css/step-editor.css',
-  'css/step-context.css'
+  'css/step-context.css',
+  'css/chrome.css'
 ];
 
 function injectStylesheet(href) {

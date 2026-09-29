@@ -13,9 +13,15 @@
 }
 
 /* ---- Page frame ------------------------------------------------------------ */
+:root {
+  --gc-shell-max: 1680px;
+}
+
 .main-content {
-  max-width: 1240px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  box-sizing: border-box;
   /* Clearance so the last content (chain bar) can scroll fully above the
      sticky deck; --gc-deck-h is kept current by js/ui/mobile.js. */
   padding-bottom: calc(var(--gc-deck-h, 150px) + 20px) !important;
@@ -44,7 +50,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 10px 16px;
-  max-width: 1240px;
+  width: calc(100% - 32px);
+  max-width: var(--gc-shell-max);
   margin: 0 auto;
 }
 
@@ -245,7 +252,7 @@
 
 /* ---- Chain bar joins the machine instead of floating ----------------------- */
 #gc-chainBar {
-  max-width: 1240px;
+  max-width: var(--gc-shell-max);
   margin: 10px auto 0;
   background: var(--gc-surface-1, #141414);
   border: 1px solid var(--gc-border-strong, #333);
@@ -263,7 +270,8 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 14px;
-  max-width: 1240px;
+  width: calc(100% - 32px);
+  max-width: var(--gc-shell-max);
   margin: 0 auto;
   padding: 6px 12px;
 }
@@ -315,4 +323,214 @@
 .bottom-panel .tab-navigation,
 .bottom-panel .tab-content {
   flex-basis: 100%;
+}
+
+/* ---- Product chrome: context, project state, and safer secondary actions -- */
+.gc-topbar {
+  flex-wrap: nowrap;
+}
+
+.gc-topbar .gc-brand {
+  margin: 0;
+}
+
+.gc-project-context {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--gc-border-strong, #333);
+}
+
+.gc-project-context .gc-view-switch {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.gc-project-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 112px;
+}
+
+#gc-project-name {
+  overflow: hidden;
+  color: var(--gc-text, #e8e8e8);
+  font: 700 11px/1.3 "Roboto Mono", monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#gc-project-status {
+  color: var(--gc-text-faint, #777);
+  font: 600 9px/1.4 "Roboto Mono", monospace;
+}
+
+#gc-project-status[data-state="saving"] {
+  color: var(--gc-orange-light, #ff6a2b);
+}
+
+.project-controls {
+  position: relative;
+  flex-wrap: nowrap !important;
+}
+
+.gc-shell-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--gc-border-strong, #3a3a3a);
+  border-radius: var(--gc-radius-md, 6px);
+  background: var(--gc-surface-3, #232323);
+  color: var(--gc-text, #e8e8e8);
+  font: 700 10px/1 "Roboto Mono", monospace;
+  cursor: pointer;
+}
+
+.gc-shell-icon-btn .material-icons {
+  font-size: 16px;
+}
+
+.gc-shell-icon-btn:hover,
+.gc-shell-icon-btn:focus-visible,
+.gc-shell-icon-btn[aria-expanded="true"] {
+  border-color: var(--gc-orange, #ff4500);
+}
+
+.gc-project-more-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gc-mobile-history {
+  display: none;
+}
+
+#gc-project-more-toggle {
+  display: none;
+}
+
+.project-controls .gc-confirming,
+.gc-deck-more-menu .gc-confirming {
+  border-color: #d33c2e !important;
+  background: rgba(211, 60, 46, 0.18) !important;
+  color: #ff8c82 !important;
+}
+
+/* ---- Focused performance dock --------------------------------------------- */
+.bottom-panel {
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.bottom-panel .gc-transport {
+  flex: 0 0 auto;
+}
+
+.bottom-panel .master-controls-section {
+  flex: 0 1 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.bottom-panel .master-controls {
+  justify-content: flex-end !important;
+  gap: 16px;
+  overflow: visible;
+}
+
+#gc-deck-more-toggle {
+  flex-shrink: 0;
+}
+
+.gc-deck-more-menu {
+  position: absolute;
+  right: max(16px, calc((100vw - 1680px) / 2));
+  bottom: calc(100% + 8px);
+  display: none;
+  align-items: center;
+  gap: 10px;
+  min-width: 420px;
+  padding: 12px;
+  border: 1px solid var(--gc-border-strong, #3a3a3a);
+  border-radius: 10px;
+  background: var(--gc-surface-2, #191919);
+  box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.48);
+}
+
+.gc-deck-more-menu.gc-open {
+  display: flex;
+}
+
+.gc-deck-more-menu > button {
+  min-height: 38px;
+  border: 1px solid var(--gc-border-strong, #3a3a3a) !important;
+  background: var(--gc-surface-3, #232323) !important;
+  color: var(--gc-text, #e8e8e8) !important;
+}
+
+.gc-deck-more-menu .knob-container {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.gc-deck-more-menu .knob {
+  width: 38px;
+  height: 38px;
+  margin: 0;
+}
+
+.gc-deck-more-menu .knob-label {
+  min-width: auto;
+  margin: 0;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+@media (min-width: 1280px) {
+  .gc-topbar {
+    display: grid;
+    grid-template-columns: max-content max-content minmax(180px, 1fr) max-content;
+    gap: 18px;
+  }
+  .gc-topbar .gc-brand { grid-column: 1; }
+  .gc-topbar .gc-project-context { grid-column: 2; }
+  .gc-topbar .quick-actions {
+    grid-column: 3;
+    justify-content: center;
+  }
+  .gc-topbar .project-controls {
+    grid-column: 4;
+    margin-left: 0;
+  }
+
+  .bottom-panel {
+    display: grid;
+    grid-template-columns: minmax(330px, .72fr) minmax(620px, 1.28fr);
+    gap: 24px;
+  }
+  .bottom-panel .gc-transport {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .bottom-panel .master-controls-section,
+  .bottom-panel .master-controls {
+    width: 100%;
+  }
+  .bottom-panel .master-controls {
+    justify-content: space-between !important;
+  }
+}
+
+@media (max-width: 1180px) {
+  .gc-project-copy { display: none; }
+  .gc-project-context { padding-left: 8px; }
+  .gc-shell-icon-btn > span:last-child { display: none; }
 }

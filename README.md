@@ -28,6 +28,9 @@ The application follows coding best practices with a clean separation of concern
 
 ## Features
 
+- **Guided Playground** with twelve musical directions, smart Intro/Verse/Chorus/
+  Drop shaping, seven macro controls, lock-aware variations, and a one-click
+  handoff to the sequencer
 - 16-step sequencer with 17 instruments
 - Genre-specific style presets (Trap, Drill, Afrobeats, etc.)
 - Real-time groove controls (Swing, Humanization, Polyrhythm)

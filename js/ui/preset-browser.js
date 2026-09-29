@@ -231,6 +231,12 @@ function setActive(i, scroll) {
   }
 }
 
+function visibleColumns() {
+  const columns = getComputedStyle(listEl).gridTemplateColumns;
+  if (!columns || columns === 'none') return 1;
+  return Math.max(1, columns.split(' ').filter(Boolean).length);
+}
+
 // ---------------------------------------------------------------------------
 // Open / close
 // ---------------------------------------------------------------------------
@@ -270,6 +276,13 @@ function buildPanel() {
   panelEl.innerHTML = `
     <div class="gc-pb-backdrop"></div>
     <div class="gc-pb-panel" role="dialog" aria-modal="true" aria-label="Preset browser">
+      <div class="gc-pb-intro">
+        <span class="material-icons" aria-hidden="true">travel_explore</span>
+        <div>
+          <strong>Find your starting point</strong>
+          <small>Search by sound, genre, or energy. Every choice stays editable.</small>
+        </div>
+      </div>
       <div class="gc-pb-head">
         <input class="gc-pb-search" type="search" placeholder="Search presets…  (press /)"
                aria-label="Search presets" autocomplete="off" spellcheck="false">
@@ -282,7 +295,7 @@ function buildPanel() {
       </div>
       <div class="gc-pb-chips" role="group" aria-label="Filter by genre"></div>
       <div class="gc-pb-list" role="listbox" aria-label="Presets" tabindex="0"></div>
-      <div class="gc-pb-foot">★ favorites float to the top · Enter loads · Esc closes</div>
+      <div class="gc-pb-foot">★ favorites float to the top · Arrow keys browse · Enter loads · Esc closes</div>
     </div>`;
   document.body.appendChild(panelEl);
 
@@ -348,8 +361,11 @@ function buildPanel() {
       searchEl.focus();
       return;
     }
-    if (e.key === 'ArrowDown') { e.preventDefault(); setActive(state.activeIndex + 1, true); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(state.activeIndex - 1, true); }
+    const columns = visibleColumns();
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive(state.activeIndex + columns, true); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(state.activeIndex - columns, true); }
+    else if (e.key === 'ArrowRight' && columns > 1) { e.preventDefault(); setActive(state.activeIndex + 1, true); }
+    else if (e.key === 'ArrowLeft' && columns > 1) { e.preventDefault(); setActive(state.activeIndex - 1, true); }
     else if (e.key === 'Home' && document.activeElement === listEl) { e.preventDefault(); setActive(0, true); }
     else if (e.key === 'End' && document.activeElement === listEl) { e.preventDefault(); setActive(state.visible.length - 1, true); }
     else if (e.key === 'Enter') {

@@ -16,6 +16,7 @@
  */
 
 import { findMeta } from '../data/preset-meta.js';
+import { findIntent } from '../data/generator-intents.js';
 
 let GCRef = null;
 
@@ -101,6 +102,41 @@ function presetLeadIn(g) {
     return meta.genre.toLowerCase();
 }
 
+function playgroundLeadIn() {
+    try {
+        const pg = window.GCPlayground && window.GCPlayground.getState();
+        if (!pg || !pg.active || !pg.intentId) return null;
+        const intent = findIntent(pg.intentId);
+        return intent.suno || intent.label.toLowerCase();
+    } catch (e) {
+        return null;
+    }
+}
+
+function playgroundDetails() {
+    try {
+        const pg = window.GCPlayground && window.GCPlayground.getState();
+        if (!pg || !pg.active) return { state: null, descriptors: [] };
+        const descriptors = [];
+        const moments = {
+            intro: 'restrained intro',
+            verse: 'verse-ready pocket',
+            chorus: 'anthemic chorus lift',
+            drop: 'drop-ready peak energy'
+        };
+        if (moments[pg.momentId]) descriptors.push(moments[pg.momentId]);
+        const m = pg.macros || {};
+        if (Number(m.motion) >= 7) descriptors.push('propulsive rhythmic motion');
+        if (Number(m.tone) >= 7) descriptors.push('textured percussion');
+        if (Number(m.space) >= 8) descriptors.push('wide open arrangement');
+        if (Number(m.energy) >= 8 && pg.momentId !== 'drop') descriptors.push('high-impact energy');
+        if (Number(m.surprise) >= 7) descriptors.push('unpredictable fills');
+        return { state: pg, descriptors };
+    } catch (e) {
+        return { state: null, descriptors: [] };
+    }
+}
+
 function buildStylePrompt() {
     const g = gc();
     if (!g || !g.patterns) return null;
@@ -122,8 +158,10 @@ function buildStylePrompt() {
         dense: totalHits >= 44
     };
 
-    const lead = presetLeadIn(g);
+    const lead = presetLeadIn(g) || playgroundLeadIn();
     const parts = [lead || inferGenre(bpm, f)];
+    const pgDetails = playgroundDetails();
+    parts.push(...pgDetails.descriptors);
 
     // Rhythm skeleton (from the live grid)
     if (f.fourOnFloor) parts.push('four-on-the-floor 808 kick');
@@ -166,11 +204,16 @@ function buildStylePrompt() {
     parts.push('analog TR-808 drum machine', 'clean instrumental beat', bpm + ' BPM');
 
     const meta = (g.currentPresetSelection && findMeta(g.currentPresetSelection.kind, g.currentPresetSelection.key)) || null;
+    const pg = pgDetails.state;
+    const playground = (pg && pg.intentId)
+        ? { intentId: pg.intentId, label: findIntent(pg.intentId).label, momentId: pg.momentId, macros: pg.macros }
+        : null;
     return {
         prompt: parts.join(', '),
         bpm,
         hits: totalHits,
-        preset: meta ? { kind: meta.kind, key: meta.key, label: meta.label, genre: meta.genre } : null
+        preset: meta ? { kind: meta.kind, key: meta.key, label: meta.label, genre: meta.genre } : null,
+        playground
     };
 }
 
@@ -179,6 +222,7 @@ const api = { buildStylePrompt };
 export function init(GC) {
     GCRef = GC || (typeof window !== 'undefined' ? window.GC : null) || null;
     window.GCAIPrompt = api;
+    GCRef?.events?.emit('ai-prompt:ready');
     return api;
 }
 

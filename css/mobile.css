@@ -126,6 +126,78 @@
   margin-bottom: 4px;
 }
 
+/* Tablet header keeps context visible but collapses infrequent project
+   actions into the same More menu used on phones. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .gc-topbar {
+    flex-wrap: wrap;
+  }
+  .gc-topbar .gc-brand { order: 0; }
+  .gc-topbar .gc-project-context { order: 1; flex: 1 1 auto; }
+  .gc-topbar .project-controls {
+    order: 2;
+    width: auto;
+    margin-left: auto;
+  }
+  .gc-topbar .project-controls > #save {
+    flex: 0 0 auto;
+    min-width: 84px;
+  }
+  .gc-topbar .project-controls > #gc-project-more-toggle {
+    flex: 0 0 auto;
+    min-width: 42px;
+  }
+  .gc-topbar .quick-actions {
+    order: 3;
+    flex: 1 0 100%;
+    justify-content: center;
+  }
+  #gc-header-undo,
+  #gc-header-redo {
+    display: none;
+  }
+  #gc-project-more-toggle {
+    display: inline-flex;
+  }
+  .gc-project-more-menu {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 8px);
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 210px;
+    padding: 8px;
+    border: 1px solid var(--gc-border-strong);
+    border-radius: 8px;
+    background: var(--gc-surface-2);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+  }
+  .gc-project-more-menu.gc-open {
+    display: flex;
+  }
+  .gc-project-more-menu button {
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 42px;
+  }
+  .gc-project-more-menu .gc-mobile-history {
+    display: inline-flex;
+  }
+  .gc-project-more-menu .gc-shell-icon-btn > span:last-child,
+  .gc-project-more-menu .button-text {
+    display: inline;
+  }
+  .sticky-bottom-section .master-controls {
+    gap: 10px;
+    overflow: visible;
+  }
+  .sticky-bottom-section .master-controls .knob-label {
+    display: none;
+  }
+}
+
 /* ===========================================================================
    Below 768px: real touch targets + type floor.
    =========================================================================== */
@@ -166,5 +238,189 @@
   .sticky-bottom-section .knob-label,
   .sticky-bottom-section .rhythm-btn {
     font-size: 11px !important;
+  }
+
+  /* Two compact header rows: brand/actions, then mode/browse. */
+  .app-header {
+    padding: 8px 12px;
+  }
+  .gc-topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 10px;
+  }
+  .gc-topbar .gc-brand {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    text-align: left;
+  }
+  .gc-topbar .project-controls {
+    grid-column: 2;
+    grid-row: 1;
+    gap: 6px;
+    margin: 0;
+  }
+  .gc-topbar .gc-project-context {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0;
+    border: 0;
+  }
+  .gc-topbar .quick-actions {
+    grid-column: 2;
+    grid-row: 2;
+    justify-content: flex-end;
+    margin: 0;
+  }
+  .gc-project-copy,
+  #gc-header-undo span:last-child,
+  #gc-header-redo span:last-child,
+  #gc-project-more-toggle span:last-child,
+  .project-controls .button-text {
+    display: none;
+  }
+  .project-controls > button,
+  .project-controls > .gc-shell-icon-btn {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+  #gc-header-undo,
+  #gc-header-redo {
+    display: none;
+  }
+  #gc-project-more-toggle {
+    display: inline-flex;
+  }
+  .gc-project-more-menu {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 8px);
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 190px;
+    padding: 8px;
+    border: 1px solid var(--gc-border-strong);
+    border-radius: 8px;
+    background: var(--gc-surface-2);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5);
+  }
+  .gc-project-more-menu.gc-open {
+    display: flex;
+  }
+  .gc-project-more-menu button {
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 44px;
+  }
+  .gc-project-more-menu .gc-mobile-history {
+    display: inline-flex;
+  }
+  .gc-project-more-menu .gc-shell-icon-btn > span:last-child {
+    display: inline;
+  }
+  .gc-project-more-menu .button-text {
+    display: inline;
+  }
+  #gc-browse-btn {
+    min-height: 40px;
+    padding: 7px 11px;
+  }
+  #gc-browse-btn .gc-browse-count {
+    display: none;
+  }
+  .gc-project-context .gc-view-switch {
+    margin: 0;
+  }
+  .gc-project-context .gc-view-button {
+    min-height: 40px;
+    padding: 6px 9px;
+  }
+
+  /* No hidden horizontal footer controls: primary transport above a compact
+     tempo/master row; secondary tools open in a bottom-sheet-style menu. */
+  .sticky-bottom-section {
+    padding: 5px 8px calc(5px + env(safe-area-inset-bottom));
+  }
+  .bottom-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 5px;
+    padding: 0;
+  }
+  .bottom-panel .gc-transport {
+    display: grid;
+    grid-template-columns: minmax(78px, 1.25fr) minmax(64px, 1fr) minmax(70px, 1fr) 48px;
+    width: 100%;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .bottom-panel .gc-transport > button,
+  .bottom-panel .gc-transport .variation-switch {
+    min-width: 0;
+    min-height: 44px;
+  }
+  .bottom-panel .gc-transport .variation-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .bottom-panel .master-controls-section {
+    width: 100%;
+  }
+  .sticky-bottom-section .master-controls {
+    display: grid;
+    grid-template-columns: auto auto minmax(62px, 1fr) minmax(78px, 1.1fr);
+    align-items: center;
+    width: 100%;
+    gap: 6px;
+    overflow: visible;
+  }
+  .sticky-bottom-section .master-controls .knob-container {
+    min-width: 0;
+    gap: 5px;
+  }
+  .sticky-bottom-section .master-controls .knob {
+    width: 38px;
+    height: 38px;
+  }
+  .sticky-bottom-section .master-controls .knob-label {
+    display: none;
+  }
+  .sticky-bottom-section .gc-tempo-tools {
+    gap: 3px;
+  }
+  #gc-tapTempoBtn,
+  #gc-metronomeBtn {
+    min-width: 42px;
+    min-height: 21px;
+    padding: 2px 6px;
+  }
+  .gc-deck-more-menu {
+    right: 8px;
+    left: 8px;
+    bottom: calc(100% + 7px);
+    min-width: 0;
+    max-height: min(58vh, 430px);
+    flex-wrap: wrap;
+    overflow-y: auto;
+    padding: 12px;
+  }
+  .gc-deck-more-menu.gc-open {
+    display: flex;
+  }
+  .gc-deck-more-menu > button {
+    flex: 1 1 120px;
+    min-height: 44px;
+  }
+  .gc-deck-more-menu .knob-container {
+    flex: 1 1 90px;
+    justify-content: center;
   }
 }

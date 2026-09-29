@@ -51,18 +51,18 @@ function gridIsEmpty(GC) {
 const MARKS = [
   {
     anchor: () => document.getElementById('playButton'),
-    title: 'Press play',
-    body: 'We loaded a classic 808 groove to get you started. Hit PLAY — or just tap Space.'
+    title: 'Hear your first groove',
+    body: 'We created a groove to get you started. Hit PLAY — or tap Space — whenever you want to listen.'
   },
   {
-    anchor: () => document.querySelector('.instrument-row .step-button'),
-    title: 'Make it yours',
-    body: 'Tap steps to add and remove hits. Drag up and down on a lit pad to shape its velocity.'
+    anchor: () => document.querySelector('#gc-playground .gc-pg-card input[type="range"]'),
+    title: 'Shape it by feel',
+    body: 'Move a card from low to high. GrooveCore changes several musical decisions together, so the result stays coherent.'
   },
   {
-    anchor: () => document.getElementById('gc-browse-btn') || document.querySelector('.quick-actions'),
-    title: 'Explore 170+ grooves',
-    body: 'BROWSE opens the full library — styles, grooves, genre filters and favorites.'
+    anchor: () => document.getElementById('gc-pg-create'),
+    title: 'Create another',
+    body: 'Lock any part you love, then create a variation. Open Sequencer when you want to edit every individual hit.'
   }
 ];
 
@@ -162,11 +162,17 @@ export function init(GC) {
     return;
   }
 
-  // Load the demo beat through the bridge (fall back to the classic global).
-  const load = (GC && GC.fns && GC.fns.loadStylePreset) ||
-    (typeof window.loadStylePreset === 'function' ? window.loadStylePreset : null);
-  if (load) {
-    try { load('classic808'); } catch (e) { console.warn('[onboarding] demo load failed', e); }
+  // The Playground is the beginner path: create a coherent first groove
+  // instead of dropping a new user into a pre-filled advanced grid.
+  if (window.GCPlayground && typeof window.GCPlayground.generate === 'function') {
+    try { window.GCPlayground.generate({ fresh: true }); }
+    catch (e) { console.warn('[onboarding] first groove failed', e); }
+  } else {
+    const load = (GC && GC.fns && GC.fns.loadStylePreset) ||
+      (typeof window.loadStylePreset === 'function' ? window.loadStylePreset : null);
+    if (load) {
+      try { load('classic808'); } catch (e) { console.warn('[onboarding] demo load failed', e); }
+    }
   }
 
   markSeen();

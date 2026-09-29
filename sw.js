@@ -8,7 +8,7 @@
  * breaks later navigations ("loads once, then not again").
  */
 
-const CACHE = 'gc-v10';
+const CACHE = 'gc-v29';
 
 const PRECACHE = [
   // Shell (prefer index.html over "/" — "/" often 301/302 on Pages)
@@ -26,6 +26,7 @@ const PRECACHE = [
   '/js/main.js',
   '/js/core/events.js',
   '/js/core/schema.js',
+  '/js/core/groove-generator.js',
   '/js/audio/params.js',
   '/js/audio/voices.js',
   '/js/audio/bus.js',
@@ -46,6 +47,7 @@ const PRECACHE = [
   '/js/ui/chain.js',
   '/js/ui/knob-engine.js',
   '/js/ui/export-menu.js',
+  '/js/ui/playground.js',
   '/js/ui/preset-browser.js',
   '/js/ui/onboarding.js',
   '/js/ui/a11y.js',
@@ -56,12 +58,14 @@ const PRECACHE = [
   '/js/perf/midi-in.js',
   '/js/perf/record.js',
   '/js/data/preset-meta.js',
+  '/js/data/generator-intents.js',
 
   // Override stylesheets
   '/css/tokens.css',
   '/css/polish.css',
   '/css/a11y.css',
   '/css/mobile.css',
+  '/css/playground.css',
   '/css/preset-browser.css',
   '/css/onboarding.css',
   '/css/step-editor.css',
@@ -69,6 +73,7 @@ const PRECACHE = [
   '/css/toast.css',
   '/css/brand.css',
   '/css/shell.css',
+  '/css/chrome.css',
   '/js/io/ai-prompt.js',
 
   // Vendored libraries + fonts

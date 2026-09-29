@@ -1,7 +1,7 @@
 /**
  * GrooveCore — js/audio/voices.js  (WS-A)
  *
- * Circuit-accurate per-hit voice factories for the 17 canonical voices.
+ * Circuit-informed per-hit voice factories for the 17 canonical voices.
  *
  * Every hit builds a small disposable node graph, schedules it against the
  * caller's `time`, and tears itself down afterwards. Nothing envelope-driven
@@ -188,11 +188,16 @@ function buildVoices(destination) {
         const env = envOpts(real);
         const len = envLen(atk, decay, real);
 
+        // The hardware's bridged-T resonator feeds a tone/output stage. A
+        // post-resonator low-pass is much closer than filtering only a click.
+        const toneLPF = new Tone.Filter({ frequency: real.tone, type: 'lowpass', Q: 0.65, rolloff: -12 });
+        toneLPF.connect(outputs[inst]);
         const sat = tanhShaper(d.satAmount + real.drive * 4);
-        sat.connect(outputs[inst]);
-        nodes.push(sat);
+        sat.connect(toneLPF);
+        nodes.push(toneLPF, sat);
 
-        // body: sine with 2-octave, 45 ms pitch envelope
+        // Bridged-T decay: a near-sine around 49.5 Hz with a short trigger-
+        // induced pitch transient, not the exaggerated multi-octave laser kick.
         const bodyVCA = scheduledVCA(t, peak, atk, decay, nodes, env);
         bodyVCA.connect(sat);
         const osc = new Tone.Oscillator({ frequency: f, type: 'sine' });
@@ -203,10 +208,10 @@ function buildVoices(destination) {
         osc.stop(t + len + 0.1);
         nodes.push(osc);
 
-        // click: damped pulse through the Tone-knob band-pass (200 Hz – 4 kHz)
+        // A short pulse excites the resonator and supplies the attack transient.
         const clickVCA = scheduledVCA(t, peak * 0.7, Math.min(atk, 0.001), 0.008, nodes);
         clickVCA.connect(sat);
-        const clickBPF = new Tone.Filter({ frequency: real.tone, type: 'bandpass', Q: filtQ(1.5, real) });
+        const clickBPF = new Tone.Filter({ frequency: 1100, type: 'bandpass', Q: filtQ(1.2, real) });
         clickBPF.connect(clickVCA);
         const click = new Tone.Oscillator({ frequency: Math.max(80, real.tone * 0.5), type: 'square' });
         click.connect(clickBPF);
@@ -227,17 +232,23 @@ function buildVoices(destination) {
 
         const dest = outChain(inst, real, nodes);
 
-        // tonal body: dual sines 185 / 330 Hz
-        const bodyVCA = scheduledVCA(t, peak * 0.85, atk, Math.min(decay, 0.18), nodes, env);
-        bodyVCA.connect(dest);
-        for (const bf of [d.freq, d.freq2]) {
+        // Two bridged-T resonators with independent decay constants. Hardware
+        // revisions vary, but the later schematic calculates near 173/336 Hz.
+        const toneNorm = Math.max(0, Math.min(1,
+            Math.log(real.tone / d.toneRange[0]) / Math.log(d.toneRange[1] / d.toneRange[0])
+        ));
+        [d.freq, d.freq2].forEach((bf, index) => {
+            const bodyDecay = Math.min(decay, index === 0 ? 0.19 : 0.12);
+            const bodyPeak = peak * (index === 0 ? 0.9 - toneNorm * 0.22 : 0.42 + toneNorm * 0.38);
+            const resonatorLen = envLen(atk, bodyDecay, real);
+            const resonatorVCA = scheduledVCA(t, bodyPeak, atk, bodyDecay, nodes, env);
+            resonatorVCA.connect(dest);
             const osc = new Tone.Oscillator({ frequency: bf * ratio, type: 'sine' });
-            osc.connect(bodyVCA);
+            osc.connect(resonatorVCA);
             osc.start(t);
-            osc.stop(t + len + 0.1);
+            osc.stop(t + resonatorLen + 0.1);
             nodes.push(osc);
-        }
-
+        });
         // snappy: independently-enveloped noise
         const noisePeak = peak * real.snappy;
         if (noisePeak > 0.001) {
@@ -270,7 +281,7 @@ function buildVoices(destination) {
         vca.connect(sat);
         const lpf = new Tone.Filter({ frequency: real.tone, type: 'lowpass', Q: filtQ(1, real) });
         lpf.connect(vca);
-        const osc = new Tone.Oscillator({ frequency: f, type: 'triangle' });
+        const osc = new Tone.Oscillator({ frequency: f, type: 'sine' });
         osc.frequency.setValueAtTime(f * d.pitchEnvRatio, t);
         osc.frequency.exponentialRampToValueAtTime(f, t + d.pitchEnvTime);
         osc.connect(lpf);
@@ -367,7 +378,7 @@ function buildVoices(destination) {
 
         const vca = scheduledVCA(t, peak, atk, decay, nodes, env);
         vca.connect(sat);
-        const osc = new Tone.Oscillator({ frequency: f, type: 'triangle' });
+        const osc = new Tone.Oscillator({ frequency: f, type: 'sine' });
         osc.frequency.setValueAtTime(f * d.pitchEnvRatio, t);
         osc.frequency.exponentialRampToValueAtTime(f, t + d.pitchEnvTime);
         osc.connect(vca);

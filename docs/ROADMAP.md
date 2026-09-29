@@ -6,7 +6,9 @@ live in [UPGRADE-PLAN.md](UPGRADE-PLAN.md); data-quality history is in
 
 ## Headline: TB-303 bassline lane
 
-**Status:** proposed (2026-07-30) — awaiting a design decision.
+**Status:** circuit research complete (2026-09-29); implementation remains
+unshipped. The accepted quality bar is the full-authenticity lane described
+below, not a generic monosynth labeled “303.”
 **Why:** the 808's historical companion, and the highest-value addition for the
 primary workflow (Suno/AI reference exports): kick + acid bassline gives the AI
 melody, key, and groove to lock onto instead of drums alone.
